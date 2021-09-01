@@ -1,4 +1,5 @@
 import SpringNode from "./SpringNode";
+import {SpringNodeType} from './SpringMassStatic';
 
 export default class SpringSegment {
 
@@ -10,11 +11,19 @@ export default class SpringSegment {
         return this._nodes.length;
     }
 
-    public constructor(parentX : number, parentY : number, segmentNumber : number, segmentDistance : number) {
-        this._segmentNumber = segmentNumber;
+    get nodes() : SpringNode[] {
+        return this._nodes;
+    }
+
+    public constructor(parentX : number, parentY : number, segmentCount : number, segmentDistance : number) {
+        this._segmentNumber = segmentCount;
         this._segmentDistance = segmentDistance;
         this._nodes = [];
-        this._nodes.push(new SpringNode(parentX, parentY) );
+        this._nodes.push(new SpringNode(parentX, parentY, SpringNodeType.ControlPoint) );
+        
+        for (let i = 0; i < segmentCount -1; i ++) {
+            this.PushNode();
+        }
     }
 
     public PushNode() : SpringNode {
@@ -23,7 +32,8 @@ export default class SpringSegment {
         let lastNode = this._nodes[this.nodeLength - 1];
         let lNodeX = lastNode.position[0], lNodeY = lastNode.position[1];
 
-        let newNode = new SpringNode(lNodeX, lNodeY + this._segmentDistance);
+        let newNode = new SpringNode(lNodeX, lNodeY + this._segmentDistance, SpringNodeType.FreePoint);
+
         this._nodes.push(newNode);
         this._segmentNumber++;
         return newNode;
