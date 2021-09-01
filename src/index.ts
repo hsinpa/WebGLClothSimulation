@@ -5,4 +5,4 @@ console.log("Hello world");
 
 let canvasQuery = "#webgl_canvas";
 let springMassSystem = new SpringMassSystem(canvasQuery);
-springMassSystem.CreateSpringSegment(400, 100, 10, 40);
+springMassSystem.CreateSpringSegment(400, 100, 3, 40);

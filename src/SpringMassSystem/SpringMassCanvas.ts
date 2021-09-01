@@ -32,9 +32,12 @@ export default class SpringMassCanvas {
     }
 
     private DrawCircle(x : number, y: number, radius : number) {
+        this._context.beginPath();
+
         this._context.fillStyle = "rgb(255,165,0)";
         this._context.arc(x, y, radius, 0, 2 * Math.PI);
         this._context.fill();
+
     }
 
     private AutoSetCanvasSize() {
@@ -49,9 +52,6 @@ export default class SpringMassCanvas {
           displayWidth = (displayWidth >= displayHeight) ? this.maxDrawBufferSize : (this.maxDrawBufferSize * displayWidth / displayHeight);
         }
   
-        console.log(displayWidth +", " + displayHeight);
-        console.log(this._canvasDom.clientWidth, this._canvasDom.clientHeight);
-
         this._canvasDom.width = displayWidth;
         this._canvasDom.height = displayHeight;
     }

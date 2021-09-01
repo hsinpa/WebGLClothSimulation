@@ -32,7 +32,7 @@ export default class SpringSegment {
         let lastNode = this._nodes[this.nodeLength - 1];
         let lNodeX = lastNode.position[0], lNodeY = lastNode.position[1];
 
-        let newNode = new SpringNode(lNodeX, lNodeY + this._segmentDistance, SpringNodeType.FreePoint);
+        let newNode = new SpringNode(lNodeX - this._segmentDistance, lNodeY + this._segmentDistance, SpringNodeType.FreePoint);
 
         this._nodes.push(newNode);
         this._segmentNumber++;
@@ -44,5 +44,17 @@ export default class SpringSegment {
         
         this._segmentNumber--;
         return this._nodes.pop();
+    }
+
+    public Update() {
+        let l = this._nodes.length;
+
+        for (let i = 0; i < l; i++) {
+            if (this._nodes[i].isStatic) continue;
+
+            let anchorNode = (i > 0) ? this._nodes[i - 1] : null;
+            
+            this._nodes[i].UpdateForce(anchorNode);
+        }
     }
 }

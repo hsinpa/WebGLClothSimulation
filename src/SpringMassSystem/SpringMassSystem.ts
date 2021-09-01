@@ -27,9 +27,16 @@ export default class SpringMassSystem {
 
         this._canvas.Draw(this.segments);
 
+        this.UpdateNodePhysics();
+
         window.requestAnimationFrame(this.FrameLoop.bind(this));
     }
 
+    private UpdateNodePhysics() {
+        this.segments.forEach(s => {
+            s.Update();
+        });
+    }
     
 
 }
