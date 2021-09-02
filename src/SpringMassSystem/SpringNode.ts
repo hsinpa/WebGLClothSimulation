@@ -15,12 +15,12 @@ export default class SpringNode {
 
     public isStatic : boolean = false;
 
-    private _mass = 30;
-    private _k = 7;
+    private _mass = 10;
+    private _k = 10;
     private _velocity : vec2;
     private _acceleration : vec2;
-    private _gravity = 10;
-    private _timeStep = 0.02;
+    private _gravity = 30;
+    private _timeStep = 0.04;
     private _damping = 100;
 
     public constructor(x : number, y : number, type : SpringNodeType) {
@@ -31,6 +31,11 @@ export default class SpringNode {
         this._acceleration = vec2.fromValues(0,0);
 
         this.isStatic = type == SpringNodeType.ControlPoint ? true : false;
+    }
+
+    public UpdatePosition(x : number, y : number) {
+        this._position[0] = x;
+        this._position[1] = y;
     }
 
     public UpdateForce(anchorNode : SpringNode) {

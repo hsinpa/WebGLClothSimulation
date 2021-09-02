@@ -3,6 +3,10 @@ import SpringSegment from "./SpringSegment";
 export default class SpringMassCanvas {
 
     protected _canvasDom : HTMLCanvasElement;
+    get canvasDom() {
+        return this._canvasDom;
+    }
+    
     protected _context : CanvasRenderingContext2D;
 
     private maxDrawBufferSize = 2048;

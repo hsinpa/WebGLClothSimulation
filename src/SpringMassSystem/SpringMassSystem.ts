@@ -1,16 +1,28 @@
 import SpringMassCanvas from "./SpringMassCanvas";
 import SpringSegment from "./SpringSegment";
+import SpringNode from "./SpringNode";
+import {SpringNodeType} from './SpringMassStatic'
+import InputHandler, {ClickState} from "../Utility/Input/InputHandler";
+import { vec2 } from "gl-matrix";
 
 export default class SpringMassSystem {
     private _canvas : SpringMassCanvas;
     private previousTimeStamp : number = 0;
     private time : number;
+    private inputHandler : InputHandler
 
     public segments : SpringSegment[];
+    private lastMousePosition : number[];
+    private selectedControlPoint : SpringNode;
 
     public constructor(canvasQueryString : string) {
         this._canvas = new SpringMassCanvas(canvasQueryString);
+        this.inputHandler = new InputHandler();
         this.segments = [];
+        this.lastMousePosition = [0,0];
+
+        this.inputHandler.RegisterMouseMovement( this._canvas.canvasDom,this.OnMouseUIEvent.bind(this));
+        this.inputHandler.RegisterButtonEvent(this.OnMouseClickEvent.bind(this));
 
         window.requestAnimationFrame(this.FrameLoop.bind(this));
     }
@@ -28,8 +40,52 @@ export default class SpringMassSystem {
         this._canvas.Draw(this.segments);
 
         this.UpdateNodePhysics();
+        this.inputHandler.OnUpdate();
+
+
+        if (this.selectedControlPoint != null)
+            this.selectedControlPoint.UpdatePosition(this.lastMousePosition[0], this.lastMousePosition[1]);
 
         window.requestAnimationFrame(this.FrameLoop.bind(this));
+    }
+
+    private OnMouseUIEvent(mouse_position : number[], mouse_delta: number[]) {
+        this.lastMousePosition = mouse_position;
+    }
+
+    OnMouseClickEvent(state : ClickState) {
+        if (state == ClickState.Down) {
+            let controlPoint = this.FindControlPoint(this.lastMousePosition[0], this.lastMousePosition[1]);
+
+            if (controlPoint != null)
+                this.selectedControlPoint = controlPoint;
+        }
+
+        if (state == ClickState.Up) {
+            this.selectedControlPoint = null;
+        }
+    }
+
+    private FindControlPoint(x : number, y : number) : SpringNode {
+
+        let ctrlNode : SpringNode = null;
+
+        this.segments.forEach(s => {
+
+            s.nodes.forEach(n => {
+
+                if (n.type == SpringNodeType.ControlPoint) {
+                    let dist = vec2.distance(n.position, vec2.fromValues(x, y));
+
+                    if (dist < 10) {
+                        ctrlNode = n;
+                        return;
+                    }
+                }
+            });
+        });
+
+        return ctrlNode;
     }
 
     private UpdateNodePhysics() {
