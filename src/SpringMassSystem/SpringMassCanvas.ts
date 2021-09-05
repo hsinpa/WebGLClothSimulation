@@ -1,4 +1,5 @@
 import SpringSegment from "./SpringSegment";
+import SpringNode from "./SpringNode";
 
 export default class SpringMassCanvas {
 
@@ -21,17 +22,14 @@ export default class SpringMassCanvas {
         });
     }
 
-    public Draw(segments : SpringSegment[]) {
+    public Draw(nodes : SpringNode[]) {
         this._context.clearRect(0, 0, this._canvasDom.width, this._canvasDom.height);
 
-        let sLens = segments.length;
-        for (let i = 0; i < sLens; i++) {
-            let nodes = segments[i].nodes;
-            let nLens = nodes.length;
+        let nLens = nodes.length;
+        for (let i = 0; i < nLens; i++) {
 
-            for (let k = 0; k < nLens; k++) {
-                this.DrawCircle(nodes[k].position[0], nodes[k].position[1], 10);
-            }
+            this.DrawCircle(nodes[i].position[0], nodes[i].position[1], 7);
+            
         }
     }
 

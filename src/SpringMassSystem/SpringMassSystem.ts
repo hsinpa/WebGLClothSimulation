@@ -4,6 +4,7 @@ import SpringNode from "./SpringNode";
 import {SpringNodeType} from './SpringMassStatic'
 import InputHandler, {ClickState} from "../Utility/Input/InputHandler";
 import { vec2 } from "gl-matrix";
+import SprinMassCloth from './SpringMassCloth'
 
 export default class SpringMassSystem {
     private _canvas : SpringMassCanvas;
@@ -14,6 +15,8 @@ export default class SpringMassSystem {
     public segments : SpringSegment[];
     private lastMousePosition : number[];
     private selectedControlPoint : SpringNode;
+
+    private springCloth : SprinMassCloth;
 
     public constructor(canvasQueryString : string) {
         this._canvas = new SpringMassCanvas(canvasQueryString);
@@ -32,19 +35,25 @@ export default class SpringMassSystem {
         this.segments.push(segment);
     }
 
+    public CreateClothMesh(size : number, subdivide : number, startPointX : number, startPointY: number) {
+        this.springCloth = new SprinMassCloth(size, subdivide, startPointX, startPointY);
+
+        console.log(this.springCloth.nodeLength);
+    }
+
     private FrameLoop(timeStamp : number) {
         let ms =  (timeStamp - this.previousTimeStamp) / 1000;
         this.time = (timeStamp) / 1000;
         this.previousTimeStamp = timeStamp;
 
-        this._canvas.Draw(this.segments);
+        this._canvas.Draw(this.springCloth.nodes);
 
-        this.UpdateNodePhysics();
-        this.inputHandler.OnUpdate();
+        //this.UpdateNodePhysics();
+        //this.inputHandler.OnUpdate();
 
 
-        if (this.selectedControlPoint != null)
-            this.selectedControlPoint.UpdatePosition(this.lastMousePosition[0], this.lastMousePosition[1]);
+        // if (this.selectedControlPoint != null)
+        //     this.selectedControlPoint.UpdatePosition(this.lastMousePosition[0], this.lastMousePosition[1]);
 
         window.requestAnimationFrame(this.FrameLoop.bind(this));
     }
