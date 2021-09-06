@@ -1,8 +1,9 @@
 import SpringNode from "./SpringNode";
 import {SpringNodeType, SpringLinkType} from './SpringMassStatic';
 import { vec2 } from "gl-matrix";
+import {GetLinearIndex, GetSpringLinkTableID} from './SpringMassUtility';
 
-interface SpringLinkTable {
+export interface SpringLinkTable {
     [id: string] : SpringLinkType
 } 
 
@@ -30,7 +31,7 @@ export default class SpringCloth {
         this._subdivide = subdivide;
         this._springNatureLength = size / subdivide;
 
-        this._nodes = this.CreateClothNodes(this._width, this._height, startPointX, startPointY, subdivide, this._springNatureLength);
+        this._nodes = this.CreateClothNodes(startPointX, startPointY, subdivide, this._springNatureLength);
         this._springLinkLookupTable = this.GenerateSpringLink();
 
         console.log(this._springLinkLookupTable);
@@ -44,7 +45,7 @@ export default class SpringCloth {
         }
     }
 
-    private CreateClothNodes(width : number, height : number, startPointX : number, startPointY: number, subdivide : number, springNatureLength : number) : SpringNode[] {
+    private CreateClothNodes( startPointX : number, startPointY: number, subdivide : number, springNatureLength : number) : SpringNode[] {
         let nodes : SpringNode[] = [];
 
         for (let y = 0; y <= subdivide; y++) {
@@ -54,7 +55,9 @@ export default class SpringCloth {
                 let posX = startPointX + (x * springNatureLength);
                 let posY = startPointY + (y * springNatureLength); // Javascript canvas + means down;
 
-                nodes.push(new SpringNode(posX, posY, type));
+                let index = GetLinearIndex(x, y, subdivide+1);
+
+                nodes.push(new SpringNode(posX, posY, index, x, y, type));
             }
         }
 
@@ -92,12 +95,12 @@ export default class SpringCloth {
             let link_gridY = gridY + s[1];
 
             if (link_gridX < maxSize && link_gridY < maxSize && link_gridX >= 0 && link_gridY >= 0) {
-                let arrayIndex = this.GetLinearIndex(link_gridX, link_gridY, maxSize);
+                let arrayIndex = GetLinearIndex(link_gridX, link_gridY, maxSize);
 
                 let linkNode = set[arrayIndex];
                 let restLength = vec2.dist(node.position, linkNode.position);
 
-                let linkType  : SpringLinkType= { id : `${index}-${arrayIndex}`, restLength : restLength, nodes : [node, linkNode] };
+                let linkType  : SpringLinkType= { id : GetSpringLinkTableID(index, arrayIndex), restLength : restLength, nodes : [node, linkNode] };
                 links.push(linkType);
             }
         });
@@ -113,9 +116,5 @@ export default class SpringCloth {
         });
 
         return linkTable;
-    }
-
-    private GetLinearIndex(gridX : number, gridY:number, size : number) {
-        return gridX + (gridY * size);
     }
 }

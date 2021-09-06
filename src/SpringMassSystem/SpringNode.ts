@@ -1,5 +1,7 @@
 import {vec2, ReadonlyVec2} from "gl-matrix"
 import {SpringNodeType} from './SpringMassStatic'
+import {SpringLinkTable} from './SpringMassCloth'
+import {GetLinearIndex, GetSpringLinkTableID} from './SpringMassUtility';
 
 export default class SpringNode {
 
@@ -13,23 +15,35 @@ export default class SpringNode {
         return this._position;
     }
 
+    private readonly _index : number;
+    get index() : number {
+        return this._index;
+    }
+
+    private _gridIndexX : number;
+    private _gridIndexY : number;
+
     public isStatic : boolean = false;
 
     private _mass = 10;
     private _k = 10;
+    
     private _velocity : vec2;
     private _acceleration : vec2;
     private _gravity = 30;
     private _timeStep = 0.04;
     private _damping = 100;
 
-    public constructor(x : number, y : number, type : SpringNodeType) {
+    public constructor(x : number, y : number, index : number, gridIndexX : number, gridIndexY : number, type : SpringNodeType) {
         this._position = vec2.fromValues(x, y);
         this._type = type;
 
         this._velocity = vec2.fromValues(0,0);
         this._acceleration = vec2.fromValues(0,0);
 
+        this._index = index;
+        this._gridIndexX = gridIndexX;
+        this._gridIndexY = gridIndexY;
         this.isStatic = type == SpringNodeType.ControlPoint ? true : false;
     }
 
@@ -62,6 +76,42 @@ export default class SpringNode {
         // var dampingForceY = damping * velocityY;
         // var forceY = springForceY + mass * gravity - dampingForceY;
         // var accelerationY = forceY/mass;
+    }
+
+    private IntegrateForce(maxSize : number, lookUpTable : SpringLinkTable) : vec2 {
+        vec2.zero(this._acceleration); // Empty acceleration
+
+        let lookUpPossibleSpring = [[0,1], [1, 0], [0, -1], [-1, 0], //Structural Spring
+                                    [1,1], [1, -1], [-1, -1], [-1, 1], //Shear Spring
+                                    [0, 2], [2, 0], [0, -2], [-2, 0], //Shear Spring
+                                ];
+
+        lookUpPossibleSpring.forEach(offset => {
+            let link_gridX = this._gridIndexX + offset[0];
+            let link_gridY = this._gridIndexX + offset[1];
+
+            if (link_gridX < maxSize && link_gridY < maxSize && link_gridX >= 0 && link_gridY >= 0) {
+                
+                let lookUpNodeIndex = GetLinearIndex(link_gridX, link_gridY, maxSize);
+                let tableID = GetSpringLinkTableID(this._index, lookUpNodeIndex);
+
+                if (tableID in lookUpTable) {
+                    let springLink = lookUpTable[tableID];
+                    let linkNode = springLink.nodes[0].index == this.index ? springLink.nodes[1] : springLink.nodes[0];
+
+                    let springForce = this.CalSpringForce(this, linkNode, this._k);
+                }
+            }
+        });
+        
+        return this._acceleration;
+    }
+
+    private CalSpringForce(mainNode : SpringNode, linkNode : SpringNode, k : number) : vec2 {
+        let springForce = vec2.fromValues(0, 0);
+        let diff = vec2.sub(springForce, mainNode.position, linkNode.position);
+
+        return vec2.scale(springForce, diff, k);
     }
 
 }

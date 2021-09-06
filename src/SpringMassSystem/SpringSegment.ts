@@ -19,7 +19,7 @@ export default class SpringSegment {
         this._segmentNumber = segmentCount;
         this._segmentDistance = segmentDistance;
         this._nodes = [];
-        this._nodes.push(new SpringNode(parentX, parentY, SpringNodeType.ControlPoint) );
+        //this._nodes.push(new SpringNode(parentX, parentY, SpringNodeType.ControlPoint) );
         
         for (let i = 0; i < segmentCount -1; i ++) {
             this.PushNode();
@@ -32,11 +32,11 @@ export default class SpringSegment {
         let lastNode = this._nodes[this.nodeLength - 1];
         let lNodeX = lastNode.position[0], lNodeY = lastNode.position[1];
 
-        let newNode = new SpringNode(lNodeX - this._segmentDistance, lNodeY + this._segmentDistance, SpringNodeType.FreePoint);
+        //let newNode = new SpringNode(lNodeX - this._segmentDistance, lNodeY + this._segmentDistance, SpringNodeType.FreePoint);
 
-        this._nodes.push(newNode);
-        this._segmentNumber++;
-        return newNode;
+        //this._nodes.push(newNode);
+        //this._segmentNumber++;
+        return null;
     }
 
     public PopNode() : SpringNode{
