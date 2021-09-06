@@ -1,5 +1,6 @@
 import SpringSegment from "./SpringSegment";
 import SpringNode from "./SpringNode";
+import { SpringNodeType } from "./SpringMassStatic";
 
 export default class SpringMassCanvas {
 
@@ -28,15 +29,17 @@ export default class SpringMassCanvas {
         let nLens = nodes.length;
         for (let i = 0; i < nLens; i++) {
 
-            this.DrawCircle(nodes[i].position[0], nodes[i].position[1], 7);
+            let colorCode = (nodes[i].type == SpringNodeType.ControlPoint) ? "59, 50, 255" : "255,165,0";
+
+            this.DrawCircle(nodes[i].position[0], nodes[i].position[1], 7, colorCode);
             
         }
     }
 
-    private DrawCircle(x : number, y: number, radius : number) {
+    private DrawCircle(x : number, y: number, radius : number, colorCode : string ) {
         this._context.beginPath();
 
-        this._context.fillStyle = "rgb(255,165,0)";
+        this._context.fillStyle = `rgb(${colorCode})`;
         this._context.arc(x, y, radius, 0, 2 * Math.PI);
         this._context.fill();
 
