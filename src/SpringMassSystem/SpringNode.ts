@@ -26,12 +26,14 @@ export default class SpringNode {
     public isStatic : boolean = false;
 
     private _mass = 10;
-    private _k = 10;
+    private _k = 7;
     
     private _velocity : vec2;
     private _acceleration : vec2;
-    private _gravity = 30;
-    private _timeStep = 0.04;
+    private _externalForce: vec2;
+
+    private _gravity = 20;
+    private _timeStep = 0.02;
     private _damping = 100;
 
     public constructor(x : number, y : number, index : number, gridIndexX : number, gridIndexY : number, type : SpringNodeType) {
@@ -40,6 +42,7 @@ export default class SpringNode {
 
         this._velocity = vec2.fromValues(0,0);
         this._acceleration = vec2.fromValues(0,0);
+        this._externalForce = vec2.fromValues(0, this._gravity);
 
         this._index = index;
         this._gridIndexX = gridIndexX;
@@ -78,6 +81,29 @@ export default class SpringNode {
         // var accelerationY = forceY/mass;
     }
 
+    public UpdateVelocity(maxSize : number, lookUpTable : SpringLinkTable) {
+        var dampingForce = vec2.create();
+        this._acceleration = this.IntegrateForce(maxSize, lookUpTable);
+
+        //Calculate Damping
+        vec2.scale(dampingForce, this._velocity, this._damping);
+        vec2.sub(this._acceleration, this._acceleration, dampingForce);
+
+        //Currently, only gravity
+        this._externalForce = vec2.fromValues(0, this._gravity);
+        vec2.scale(this._externalForce, this._externalForce, this._mass);
+        vec2.add(this._acceleration, this._externalForce, this._acceleration);
+
+        let m = 1 / this._mass;
+        vec2.scale(this._acceleration, this._acceleration, m);
+
+        vec2.scale(this._acceleration, this._acceleration, this._timeStep);
+        vec2.add(this._velocity, this._velocity, this._acceleration);
+
+        //vec2.scale(this._velocity, this._velocity, this._timeStep);
+        vec2.add(this._position, this._position, this._velocity);
+    }
+
     private IntegrateForce(maxSize : number, lookUpTable : SpringLinkTable) : vec2 {
         vec2.zero(this._acceleration); // Empty acceleration
 
@@ -88,7 +114,7 @@ export default class SpringNode {
 
         lookUpPossibleSpring.forEach(offset => {
             let link_gridX = this._gridIndexX + offset[0];
-            let link_gridY = this._gridIndexX + offset[1];
+            let link_gridY = this._gridIndexY + offset[1];
 
             if (link_gridX < maxSize && link_gridY < maxSize && link_gridX >= 0 && link_gridY >= 0) {
                 
@@ -100,6 +126,8 @@ export default class SpringNode {
                     let linkNode = springLink.nodes[0].index == this.index ? springLink.nodes[1] : springLink.nodes[0];
 
                     let springForce = this.CalSpringForce(this, linkNode, this._k);
+
+                    vec2.add(this._acceleration, this._acceleration, springForce);
                 }
             }
         });
@@ -111,7 +139,7 @@ export default class SpringNode {
         let springForce = vec2.fromValues(0, 0);
         let diff = vec2.sub(springForce, mainNode.position, linkNode.position);
 
-        return vec2.scale(springForce, diff, k);
+        return vec2.scale(springForce, diff, -k);
     }
 
 }

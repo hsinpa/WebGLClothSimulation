@@ -5,4 +5,4 @@ console.log("Hello world");
 
 let canvasQuery = "#webgl_canvas";
 let springMassSystem = new SpringMassSystem(canvasQuery);
-springMassSystem.CreateClothMesh(300, 2, 200, 200);
+springMassSystem.CreateClothMesh(100, 2, 200, 200);

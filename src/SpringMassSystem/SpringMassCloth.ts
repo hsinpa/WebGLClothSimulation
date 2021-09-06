@@ -42,6 +42,8 @@ export default class SpringCloth {
 
         for (let i = 0; i < l; i++) {
             if (this._nodes[i].isStatic) continue;
+
+            this._nodes[i].UpdateVelocity(this._subdivide+1, this._springLinkLookupTable);
         }
     }
 
@@ -50,7 +52,7 @@ export default class SpringCloth {
 
         for (let y = 0; y <= subdivide; y++) {
             for (let x = 0; x <= subdivide; x++) {
-                let type : SpringNodeType = ((y == 0 && x == 0) || (y == 0 && x == subdivide-1)) ? SpringNodeType.ControlPoint : SpringNodeType.FreePoint;
+                let type : SpringNodeType = ((y == 0 && x == 0) || (y == 0 && x == subdivide)) ? SpringNodeType.ControlPoint : SpringNodeType.FreePoint;
                 
                 let posX = startPointX + (x * springNatureLength);
                 let posY = startPointY + (y * springNatureLength); // Javascript canvas + means down;
@@ -76,10 +78,10 @@ export default class SpringCloth {
             //Structural Links
             this.SetSpringLinkToTable(table, this.FindSpring(this._nodes[i], i, gridX, gridY, size, this._nodes, [[1, 0], [0, 1]]));
 
-            // //Shear Links
+            //Shear Links
             this.SetSpringLinkToTable(table, this.FindSpring(this._nodes[i], i, gridX, gridY, size, this._nodes,  [[-1, 1], [1, 1]]));
 
-            // //Flexion Links
+            //Flexion Links
             this.SetSpringLinkToTable(table, this.FindSpring(this._nodes[i], i, gridX, gridY, size, this._nodes,  [[2, 0], [0, 2]]));
         }
 

@@ -37,6 +37,7 @@ export default class SpringMassSystem {
 
     public CreateClothMesh(size : number, subdivide : number, startPointX : number, startPointY: number) {
         this.springCloth = new SprinMassCloth(size, subdivide, startPointX, startPointY);
+        this.springCloth.Update();
 
         console.log(this.springCloth.nodeLength);
     }
@@ -47,6 +48,8 @@ export default class SpringMassSystem {
         this.previousTimeStamp = timeStamp;
 
         this._canvas.Draw(this.springCloth.nodes);
+
+        this.springCloth.Update();
 
         //this.UpdateNodePhysics();
         //this.inputHandler.OnUpdate();
@@ -95,13 +98,6 @@ export default class SpringMassSystem {
         });
 
         return ctrlNode;
-    }
-
-    private UpdateNodePhysics() {
-        this.segments.forEach(s => {
-            s.Update();
-        });
-    }
-    
+    }  
 
 }
