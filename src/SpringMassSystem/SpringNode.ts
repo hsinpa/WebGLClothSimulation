@@ -25,16 +25,16 @@ export default class SpringNode {
 
     public isStatic : boolean = false;
 
-    private _mass = 10;
+    private _mass = 5;
     private _k = 7;
     
     private _velocity : vec2;
     private _acceleration : vec2;
     private _externalForce: vec2;
 
-    private _gravity = 20;
+    private _gravity =  10;
     private _timeStep = 0.02;
-    private _damping = 100;
+    private _damping = 30;
 
     public constructor(x : number, y : number, index : number, gridIndexX : number, gridIndexY : number, type : SpringNodeType) {
         this._position = vec2.fromValues(x, y);
@@ -111,6 +111,7 @@ export default class SpringNode {
                                     [1,1], [1, -1], [-1, -1], [-1, 1], //Shear Spring
                                     [0, 2], [2, 0], [0, -2], [-2, 0], //Shear Spring
                                 ];
+        //console.log("Index " + this.index);
 
         lookUpPossibleSpring.forEach(offset => {
             let link_gridX = this._gridIndexX + offset[0];
@@ -123,9 +124,11 @@ export default class SpringNode {
 
                 if (tableID in lookUpTable) {
                     let springLink = lookUpTable[tableID];
-                    let linkNode = springLink.nodes[0].index == this.index ? springLink.nodes[1] : springLink.nodes[0];
 
-                    let springForce = this.CalSpringForce(this, linkNode, this._k);
+                    let linkNode = Math.floor(springLink.nodes[0].index) == Math.floor(this.index) ? springLink.nodes[1] : springLink.nodes[0];
+                    //console.log(tableID, this.position, linkNode.position);
+
+                    let springForce = this.CalSpringForce(this, linkNode, this._k, springLink.restLength);
 
                     vec2.add(this._acceleration, this._acceleration, springForce);
                 }
@@ -135,11 +138,20 @@ export default class SpringNode {
         return this._acceleration;
     }
 
-    private CalSpringForce(mainNode : SpringNode, linkNode : SpringNode, k : number) : vec2 {
+    private CalSpringForce(mainNode : SpringNode, linkNode : SpringNode, k : number, restLength : number) : vec2 {
         let springForce = vec2.fromValues(0, 0);
-        let diff = vec2.sub(springForce, mainNode.position, linkNode.position);
+        let normalize = vec2.fromValues(0, 0);
 
-        return vec2.scale(springForce, diff, -k);
+        let diff = vec2.sub(springForce, mainNode.position, linkNode.position);
+        vec2.normalize(normalize, diff);
+        vec2.scale(normalize, normalize, restLength);
+        vec2.add(normalize, linkNode.position, normalize);
+
+        //console.log(normalize[0], normalize[1], restLength);
+
+        let diffAfterNormalize = vec2.sub(normalize, mainNode.position, normalize);
+        
+        return vec2.scale(springForce, diffAfterNormalize, -k);
     }
 
 }

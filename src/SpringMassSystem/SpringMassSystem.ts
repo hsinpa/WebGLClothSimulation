@@ -51,12 +51,10 @@ export default class SpringMassSystem {
 
         this.springCloth.Update();
 
-        //this.UpdateNodePhysics();
-        //this.inputHandler.OnUpdate();
+        this.inputHandler.OnUpdate();
 
-
-        // if (this.selectedControlPoint != null)
-        //     this.selectedControlPoint.UpdatePosition(this.lastMousePosition[0], this.lastMousePosition[1]);
+        if (this.selectedControlPoint != null)
+             this.selectedControlPoint.UpdatePosition(this.lastMousePosition[0], this.lastMousePosition[1]);
 
         window.requestAnimationFrame(this.FrameLoop.bind(this));
     }
@@ -82,19 +80,15 @@ export default class SpringMassSystem {
 
         let ctrlNode : SpringNode = null;
 
-        this.segments.forEach(s => {
+        this.springCloth.nodes.forEach(n => {
+            if (n.type == SpringNodeType.ControlPoint) {
+                let dist = vec2.distance(n.position, vec2.fromValues(x, y));
 
-            s.nodes.forEach(n => {
-
-                if (n.type == SpringNodeType.ControlPoint) {
-                    let dist = vec2.distance(n.position, vec2.fromValues(x, y));
-
-                    if (dist < 10) {
-                        ctrlNode = n;
-                        return;
-                    }
+                if (dist < 10) {
+                    ctrlNode = n;
+                    return;
                 }
-            });
+            }
         });
 
         return ctrlNode;
