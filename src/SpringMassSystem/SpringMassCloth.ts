@@ -1,7 +1,7 @@
 import SpringNode from "./SpringNode";
-import {SpringNodeType, SpringLinkType} from './SpringMassStatic';
+import {SpringNodeType, SpringLinkType, SpringMassConfig} from './SpringMassStatic';
 import { vec2 } from "gl-matrix";
-import {GetLinearIndex, GetSpringLinkTableID} from './SpringMassUtility';
+import {GetLinearIndex, GetSpringLinkTableID, ShuffleArray} from '../Utility/SpringMassUtility';
 
 export interface SpringLinkTable {
     [id: string] : SpringLinkType
@@ -25,25 +25,58 @@ export default class SpringCloth {
     private _springNatureLength : number;
     private _springLinkLookupTable : SpringLinkTable;
     
+    private _springMassConfig : SpringMassConfig;
+    get springMassConfig() : Readonly<SpringMassConfig> {
+        return this._springMassConfig;
+    }
+
     public constructor(size : number, subdivide : number, startPointX : number, startPointY: number) {
         this._width = size;
         this._height = size;
         this._subdivide = subdivide;
         this._springNatureLength = size / subdivide;
 
+        this._springMassConfig = this.GetDefaultSpringMassConfig();
         this._nodes = this.CreateClothNodes(startPointX, startPointY, subdivide, this._springNatureLength);
         this._springLinkLookupTable = this.GenerateSpringLink();
-
+        
         console.log(this._springLinkLookupTable);
     }
 
     public Update() {
-        let l = this._nodes.length;
+        let shuffle = ShuffleArray(this._nodes);
+        //let shuffle = this._nodes;
+
+        let l = shuffle.length;
 
         for (let i = 0; i < l; i++) {
-            if (this._nodes[i].isStatic) continue;
+            if (shuffle[i].isStatic) continue;
 
-            this._nodes[i].UpdateVelocity(this._subdivide+1, this._springLinkLookupTable);
+            shuffle[i].UpdateVelocity(this._springMassConfig, this._subdivide+1, this._springLinkLookupTable);
+        }
+    }
+
+    public SetSpringMassConfig(config : SpringMassConfig) {
+        if (config.k !== undefined)
+            this._springMassConfig.k = config.k;
+
+        if (config.mass !== undefined)
+            this._springMassConfig.mass = config.mass;
+
+        if (config.gravity !== undefined)
+            this._springMassConfig.gravity = config.gravity;
+
+        if (config.damping !== undefined)
+            this._springMassConfig.damping = config.damping;
+    }
+
+    private GetDefaultSpringMassConfig() : SpringMassConfig {
+        return {
+            k : 7,
+            mass : 5,
+            gravity : 10,
+            timeStep : 0.02,
+            damping : 30
         }
     }
 

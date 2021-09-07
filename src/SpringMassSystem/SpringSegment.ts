@@ -52,9 +52,7 @@ export default class SpringSegment {
         for (let i = 0; i < l; i++) {
             if (this._nodes[i].isStatic) continue;
 
-            let anchorNode = (i > 0) ? this._nodes[i - 1] : null;
-            
-            this._nodes[i].UpdateForce(anchorNode);
+            let anchorNode = (i > 0) ? this._nodes[i - 1] : null;            
         }
     }
 }

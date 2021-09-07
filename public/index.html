@@ -4,6 +4,26 @@
     <title>Cloth Simulation</title>
 </head>
 <body>
+    <div id="config">
+        <div class="control_bar">
+            <h3>Control Panel</h3>
+            <label name="k">K Stiffness ({0})</label><br>
+            <input type="range" min="1" max="15" step="1" value="7" class="slider" name="k">
+            <br>
+    
+            <label name="mass">Mass ({0})</label><br>
+            <input type="range" min="1" max="30" step="1" value="5" class="slider" name="mass">
+            <br>
+    
+            <label name="gravity">Gravity ({0})</label><br>
+            <input type="range" min="0" max="40" step="1" value="10" class="slider" name="gravity">
+            <br>
+    
+            <label name="damping">Damping ({0})</label><br>
+            <input type="range" min="0" max="100" step="1" value="30" class="slider" name="damping">
+        </div> 
+    </div>
+
     <canvas id="webgl_canvas"></canvas>
 
     <script type="module" src="./dist/index.js"></script>

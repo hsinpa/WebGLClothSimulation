@@ -16,8 +16,11 @@ export default class SpringMassSystem {
     private lastMousePosition : number[];
     private selectedControlPoint : SpringNode;
 
-    private springCloth : SprinMassCloth;
-
+    private _springCloth : SprinMassCloth;
+    get springCloth() {
+        return this._springCloth;
+    }
+    
     public constructor(canvasQueryString : string) {
         this._canvas = new SpringMassCanvas(canvasQueryString);
         this.inputHandler = new InputHandler();
@@ -36,10 +39,10 @@ export default class SpringMassSystem {
     }
 
     public CreateClothMesh(size : number, subdivide : number, startPointX : number, startPointY: number) {
-        this.springCloth = new SprinMassCloth(size, subdivide, startPointX, startPointY);
-        this.springCloth.Update();
+        this._springCloth = new SprinMassCloth(size, subdivide, startPointX, startPointY);
+        this._springCloth.Update();
 
-        console.log(this.springCloth.nodeLength);
+        console.log(this._springCloth.nodeLength);
     }
 
     private FrameLoop(timeStamp : number) {
@@ -47,9 +50,9 @@ export default class SpringMassSystem {
         this.time = (timeStamp) / 1000;
         this.previousTimeStamp = timeStamp;
 
-        this._canvas.Draw(this.springCloth.nodes);
+        this._canvas.Draw(this._springCloth.nodes);
 
-        this.springCloth.Update();
+        this._springCloth.Update();
 
         this.inputHandler.OnUpdate();
 
@@ -80,7 +83,7 @@ export default class SpringMassSystem {
 
         let ctrlNode : SpringNode = null;
 
-        this.springCloth.nodes.forEach(n => {
+        this._springCloth.nodes.forEach(n => {
             if (n.type == SpringNodeType.ControlPoint) {
                 let dist = vec2.distance(n.position, vec2.fromValues(x, y));
 

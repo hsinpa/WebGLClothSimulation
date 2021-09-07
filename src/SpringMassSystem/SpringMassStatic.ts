@@ -10,3 +10,11 @@ export interface SpringLinkType {
     restLength : number,
     nodes : SpringNode[], //small index will be in front; size 2
 }
+
+export interface SpringMassConfig {
+    mass? : number,
+    k? : number, //stiffness
+    gravity? : number,
+    damping? : number,
+    timeStep? : number
+}
