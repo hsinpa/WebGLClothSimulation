@@ -42,7 +42,6 @@ export default class SpringMassSystem {
         this._springCloth = new SprinMassCloth(size, subdivide, startPointX, startPointY);
         this._springCloth.Update();
 
-        console.log(this._springCloth.nodeLength);
     }
 
     private FrameLoop(timeStamp : number) {
@@ -50,7 +49,7 @@ export default class SpringMassSystem {
         this.time = (timeStamp) / 1000;
         this.previousTimeStamp = timeStamp;
 
-        this._canvas.Draw(this._springCloth.nodes);
+        this._canvas.Draw(this._springCloth.subdivide + 1, this._springCloth.nodes);
 
         this._springCloth.Update();
 
@@ -86,7 +85,6 @@ export default class SpringMassSystem {
         this._springCloth.nodes.forEach(n => {
             if (n.type == SpringNodeType.ControlPoint) {
                 let dist = vec2.distance(n.position, vec2.fromValues(x, y));
-
                 if (dist < 10) {
                     ctrlNode = n;
                     return;

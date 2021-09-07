@@ -12,3 +12,7 @@ export function SetDomInputValue(inputName : string, callback : (x : number) => 
     sliderLabel.innerHTML = template.replace("{0}", inputDom.value);
     callback(parseFloat(inputDom.value));
 }
+
+export function Lerp( v0 : number,  v1 : number,  t : number) {
+    return (1 - t) * v0 + t * v1;
+  }

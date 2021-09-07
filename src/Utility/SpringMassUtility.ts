@@ -19,3 +19,4 @@ export function ShuffleArray<T>(array : T[]) : T[] {
 
     return cloneArray;
 }
+

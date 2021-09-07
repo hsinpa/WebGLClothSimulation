@@ -20,8 +20,14 @@ export default class SpringCloth {
     }
 
     private _width: number;
+    get width() : number {return this._width;}
+
     private _height : number;
+    get height() : number {return this._height;}
+
     private _subdivide : number;
+    get subdivide() : number {return this._subdivide;}
+
     private _springNatureLength : number;
     private _springLinkLookupTable : SpringLinkTable;
     

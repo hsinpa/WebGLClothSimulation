@@ -1,6 +1,7 @@
 import SpringSegment from "./SpringSegment";
 import SpringNode from "./SpringNode";
 import { SpringNodeType } from "./SpringMassStatic";
+import { Lerp } from "../Utility/UtilityFunc";
 
 export default class SpringMassCanvas {
 
@@ -23,13 +24,14 @@ export default class SpringMassCanvas {
         });
     }
 
-    public Draw(nodes : SpringNode[]) {
+    public Draw(size : number, nodes : SpringNode[]) {
         this._context.clearRect(0, 0, this._canvasDom.width, this._canvasDom.height);
-
         let nLens = nodes.length;
         for (let i = 0; i < nLens; i++) {
 
-            let colorCode = (nodes[i].type == SpringNodeType.ControlPoint) ? "59, 50, 255" : "255,165,0";
+            let greenColor = Lerp(225, 100, (size - nodes[i].gridIndexY) / size);
+
+            let colorCode = (nodes[i].type == SpringNodeType.ControlPoint) ? "59, 50, 255" : `255, ${greenColor}, 0`;
 
             this.DrawCircle(nodes[i].position[0], nodes[i].position[1], 7, colorCode);
             
@@ -52,10 +54,10 @@ export default class SpringMassCanvas {
     private SetCanvasToSceenSize(displayWidth : number, displayHeight : number) {
         //Set default to 2k resolution, if user has high spec digital screen
   
-        if (displayWidth > this.maxDrawBufferSize || displayHeight > this.maxDrawBufferSize) {
-          displayHeight = (displayHeight > displayWidth) ? this.maxDrawBufferSize : (this.maxDrawBufferSize * displayHeight / displayWidth);
-          displayWidth = (displayWidth >= displayHeight) ? this.maxDrawBufferSize : (this.maxDrawBufferSize * displayWidth / displayHeight);
-        }
+        // if (displayWidth > this.maxDrawBufferSize || displayHeight > this.maxDrawBufferSize) {
+        //   displayHeight = (displayHeight > displayWidth) ? this.maxDrawBufferSize : (this.maxDrawBufferSize * displayHeight / displayWidth);
+        //   displayWidth = (displayWidth >= displayHeight) ? this.maxDrawBufferSize : (this.maxDrawBufferSize * displayWidth / displayHeight);
+        // }
   
         this._canvasDom.width = displayWidth;
         this._canvasDom.height = displayHeight;

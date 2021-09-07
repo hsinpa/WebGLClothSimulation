@@ -21,7 +21,10 @@ export default class SpringNode {
     }
 
     private _gridIndexX : number;
+    get gridIndexX() {return this._gridIndexX;}
+
     private _gridIndexY : number;
+    get gridIndexY() {return this._gridIndexY;}
 
     public isStatic : boolean = false;
     
@@ -113,8 +116,6 @@ export default class SpringNode {
         vec2.normalize(normalize, diff);
         vec2.scale(normalize, normalize, restLength);
         vec2.add(normalize, linkNode.position, normalize);
-
-        //console.log(normalize[0], normalize[1], restLength);
 
         let diffAfterNormalize = vec2.sub(normalize, mainNode.position, normalize);
         
