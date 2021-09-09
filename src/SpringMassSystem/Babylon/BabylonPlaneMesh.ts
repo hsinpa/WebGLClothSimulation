@@ -1,14 +1,13 @@
 import Babylon from "babylonjs";
+import BabylonMeshHelper from "./BabylonMeshHelper";
 
 export default class BabylonPlaneMesh {
 
 
     public Generate(size : Babylon.Vector2, subdivide : number) {
-        let mesh = new Babylon.Mesh("plane_mesh");
+        let vertexData = this.GetVertexAndIndice(size, subdivide);
 
-        this.GetVertexAndIndice(size, subdivide);
-
-        return mesh;
+        return vertexData.GetMesh("plane_mesh");
     }
 
     private GetVertexAndIndice(size: Babylon.Vector2, subdivide: number) {
@@ -19,39 +18,28 @@ export default class BabylonPlaneMesh {
         let constZ = 0;
         let constNormal = [0, 0, -1];
 
-        let vertices = [];
-        let indices = []; 
+        let meshHelper = new BabylonMeshHelper(startX, startY, stepX, stepY, size);
 
         for (let y = 0; y < subdivide; y++) {
             for (let x = 0; x < subdivide; x++) {
                 let objectX = startX + (stepX * x), 
                     objectY = startY - (stepY * y); // Top down approach
 
-                let aVertice = this.GetVerticePos(startX, startY, stepX, stepY, x, y);
-                let bVertice = this.GetVerticePos(startX, startY, stepX, stepY, x+1, y);
-                let cVertice = this.GetVerticePos(startX, startY, stepX, stepY, x+1, y+1);
+                let aVertice = meshHelper.GetVerticePos(x, y);
+                let bVertice = meshHelper.GetVerticePos(x+1, y);
+                let cVertice = meshHelper.GetVerticePos(x+1, y+1);
 
-                let dVertice = this.GetVerticePos(startX, startY, stepX, stepY, x+1, y+1);
-                let eVertice = this.GetVerticePos(startX, startY, stepX, stepY, x, y+1);
-                let fVertice = this.GetVerticePos(startX, startY, stepX, stepY, x, y);
-                vertices.push(aVertice.x, aVertice.y, aVertice.z);
-                vertices.push(bVertice.x, bVertice.y, bVertice.z);
-                vertices.push(cVertice.x, cVertice.y, cVertice.z);
+                let dVertice = meshHelper.GetVerticePos(x+1, y+1);
+                let eVertice = meshHelper.GetVerticePos(x, y+1);
+                let fVertice = meshHelper.GetVerticePos(x, y);
 
-                vertices.push(dVertice.x, dVertice.y, dVertice.z);
-                vertices.push(eVertice.x, eVertice.y, eVertice.z);
-                vertices.push(fVertice.x, fVertice.y, fVertice.z);
+                meshHelper.PushVertices(aVertice, bVertice, cVertice);
+                meshHelper.PushVertices(dVertice, eVertice, fVertice);
             }
         }
 
-        console.log(vertices);
+        return meshHelper;
     }
 
-    private GetVerticePos(startX : number, startY : number, stepX: number, stepY : number, xIndex : number, yIndex: number) {
-        let objectX = startX + (stepX * xIndex), 
-        objectY = startY - (stepY * yIndex); // Top down approach
-
-        return new Babylon.Vector3(objectX, objectY, 0);
-    }
 
 }

@@ -38,13 +38,19 @@ export default class BabylonCanvas {
              new Babylon.Vector3(0, 1, 0),
              scene)
 
-        var sphere = Babylon.Mesh.CreateBox('sphere1', 2, scene);
-        sphere.position = new Babylon.Vector3(0, 0, 0);
+        // var sphere = Babylon.Mesh.CreateBox('sphere1', 2, scene);
+        // sphere.position = new Babylon.Vector3(0, 0, 0);
 
-        customPlaneMesh.Generate(new Babylon.Vector2(50, 50), 3);
+        let planeMesh = customPlaneMesh.Generate(new Babylon.Vector2(10, 10), 1);
+        planeMesh.position = new Babylon.Vector3(0, -5, 0);
+        scene.addMesh(planeMesh);
 
         this._engine.runRenderLoop(() => {
              scene.render();
         });
+
+        window.addEventListener('resize', () => {
+            this._engine.resize();
+        });    
     }
 }
