@@ -1,13 +1,18 @@
 import Babylon from "babylonjs";
-import BabylonMeshHelper from "./BabylonMeshHelper";
+import BabylonMesh from "./BabylonMesh";
+import BabylonSpringMass from './BabylonSpringMass';
 
-export default class BabylonPlaneMesh {
+export default class BabylonClothMesh {
 
+    public meshData : BabylonMesh;
+    public mesh : Babylon.Mesh;
+    public springMass : BabylonSpringMass;
 
-    public Generate(size : Babylon.Vector2, subdivide : number) {
-        let vertexData = this.GetVertexAndIndice(size, subdivide);
+    constructor(size : Babylon.Vector2, subdivide : number) {
+        this.meshData = this.GetVertexAndIndice(size, subdivide );
+        this.mesh = this.meshData.GetMesh("cloth_mesh [Generate]");
 
-        return vertexData.GetMesh("plane_mesh");
+        this.springMass = new BabylonSpringMass(this.meshData);
     }
 
     private GetVertexAndIndice(size: Babylon.Vector2, subdivide: number) {
@@ -18,7 +23,7 @@ export default class BabylonPlaneMesh {
         let constZ = 0;
         let constNormal = [0, 0, -1];
 
-        let meshHelper = new BabylonMeshHelper(startX, startY, stepX, stepY, size);
+        let meshHelper = new BabylonMesh(startX, startY, stepX, stepY, size);
 
         for (let y = 0; y < subdivide; y++) {
             for (let x = 0; x < subdivide; x++) {

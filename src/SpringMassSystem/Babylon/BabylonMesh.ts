@@ -4,7 +4,7 @@ export interface TrigIndexLookTable {
     [id: number] : number //Size 3
 }
 
-export default class BabylonMeshHelper {
+export default class BabylonMesh {
 
     private _startX : number;
     private _startY : number;
@@ -14,9 +14,11 @@ export default class BabylonMeshHelper {
 
     private _vertices  : number[] = [];
     private _normal : number[] = [];
+    private _uv : number[] = [];
     private _triangles : number[] = [];
     private trigIndexTable : TrigIndexLookTable;
 
+    private _verticeVec : Babylon.Vector3[] = [];
 
     constructor(startX : number, startY : number, stepX: number, stepY : number, size : Babylon.Vector2) {
         this._startX = startX;
@@ -34,12 +36,10 @@ export default class BabylonMeshHelper {
         let vertex = new Babylon.VertexData();
         vertex.positions = this._vertices;
         vertex.indices = this._triangles;
+        vertex.uvs = this._uv;
 
         Babylon.VertexData.ComputeNormals(vertex.positions, vertex.indices, this._normal);
         vertex.normals = this._normal;
-
-        console.log(vertex.positions);
-        console.log(vertex.indices);
 
         vertex.applyToMesh(mesh);
 
@@ -60,7 +60,6 @@ export default class BabylonMeshHelper {
         let indexB = this.PushVertice(verticeB);
 
         let indexC = this.PushVertice(verticeC);
-
     }
 
     private PushVertice(vertice: Babylon.Vector4) {
@@ -76,9 +75,12 @@ export default class BabylonMeshHelper {
         let index = Math.floor(this._vertices.length / 3);
 
         this._vertices.push(vertice.x, vertice.y, vertice.z);
+        this._verticeVec.push(vertice.toVector3());
+
         //this._normal.push(0, 0, -1);
 
         this._triangles.push(index);
+        this._uv.push( (-this._startX - vertice.x) / this._size.x, 1 - ((this._startY - vertice.y) / this._size.y));
 
         this.trigIndexTable[vertice.w] = index;
 
