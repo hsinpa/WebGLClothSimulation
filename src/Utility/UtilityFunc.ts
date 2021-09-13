@@ -27,3 +27,7 @@ export function GetImagePromise(imagePath : string) {
         return im;
     });
 }
+
+export function GetRandomRange(min:number, max:number) {
+    return Math.random() * (max - min) + min;
+}

@@ -15,9 +15,10 @@ export function GetMaterial(shader_name : string, scene : Babylon.Scene) {
           fragment: shader_name,
         },
         {
-          attributes: ["position", "normal", "uv"],
+          attributes: ["position", "normal", "uv", "a_offset"],
           uniforms: ["world", "worldView", "worldViewProjection", "view", "projection"],
         },
       );
 
 }
+

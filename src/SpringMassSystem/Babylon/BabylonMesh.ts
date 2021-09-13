@@ -1,4 +1,5 @@
 import Babylon from "babylonjs";
+import BabylonSpringNode from "./BabylonSpringNode";
 
 export interface TrigIndexLookTable {
     [id: number] : number //Size 3
@@ -18,7 +19,7 @@ export default class BabylonMesh {
     private _triangles : number[] = [];
     private trigIndexTable : TrigIndexLookTable;
 
-    private _verticeVec : Babylon.Vector3[] = [];
+    public meshNode : BabylonSpringNode[] = [];
 
     constructor(startX : number, startY : number, stepX: number, stepY : number, size : Babylon.Vector2) {
         this._startX = startX;
@@ -75,7 +76,6 @@ export default class BabylonMesh {
         let index = Math.floor(this._vertices.length / 3);
 
         this._vertices.push(vertice.x, vertice.y, vertice.z);
-        this._verticeVec.push(vertice.toVector3());
 
         //this._normal.push(0, 0, -1);
 

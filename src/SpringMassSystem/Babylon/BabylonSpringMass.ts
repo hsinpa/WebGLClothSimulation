@@ -1,6 +1,8 @@
+import Babylon from "babylonjs";
 import BabylonMesh from './BabylonMesh';
 import BabylonSpringNode from './BabylonSpringNode';
-import {BabylonSpringLinkType} from '../SpringMassStatic';
+import {BabylonSpringLinkType, SpringMassConfig} from '../SpringMassStatic';
+import {GetLinearIndex, GetSpringLinkTableID, ShuffleArray} from '../../Utility/SpringMassUtility';
 
 export interface SpringLinkTable {
     [id: string] : BabylonSpringLinkType
@@ -8,12 +10,83 @@ export interface SpringLinkTable {
 
 export default class BabylonSpringMass {
 
-    private _meshData : BabylonMesh;
+    public _springNodeArray : BabylonSpringNode[] = [];
+    private  _springLinkTable : SpringLinkTable;
+    private _subdivide : number;
 
-    constructor(meshData : BabylonMesh) {
-        this._meshData = meshData;
+    constructor(subdivide : number) {
+        this._subdivide = subdivide;
+    }
+
+    public PushNode(node : BabylonSpringNode) {
+        this._springNodeArray.push(node);
+    }
+
+    public UpdatePhysics(config : SpringMassConfig) {
+        let offsetArray :number[] = [];
+
+        this._springNodeArray.forEach(x=> {
+            x.UpdateVelocity(config, this._subdivide+1, this._springLinkTable );
+            let offset = x.offset;
+
+            offsetArray.push(offset.x, offset.y, offset.z);
+        });
+
+        return offsetArray;
     }
     
-    
+    public GenerateSpringLink(subdivide : number) : SpringLinkTable {
+        this._springLinkTable = {};
+        let nodeLen = this._springNodeArray.length;
+        let size = subdivide + 1;
+
+        for (let i = 0; i < nodeLen; i++) {
+            let gridX = i % (size);
+            let gridY = Math.floor(i / (size));
+
+            //Structural Links
+            this.SetSpringLinkToTable(this._springLinkTable, this.FindSpring(this._springNodeArray[i], i, gridX, gridY, size, this._springNodeArray, [[1, 0], [0, 1]]));
+
+            //Shear Links
+            this.SetSpringLinkToTable(this._springLinkTable, this.FindSpring(this._springNodeArray[i], i, gridX, gridY, size, this._springNodeArray,  [[-1, 1], [1, 1]]));
+
+            //Flexion Links
+            this.SetSpringLinkToTable(this._springLinkTable, this.FindSpring(this._springNodeArray[i], i, gridX, gridY, size, this._springNodeArray,  [[2, 0], [0, 2]]));
+        }
+
+        return this._springLinkTable;
+    }
+
+    private FindSpring(node : BabylonSpringNode, index : number, gridX : number, gridY:number, maxSize : number, 
+                    set : BabylonSpringNode[], possibleIndexSet : number[][]) : BabylonSpringLinkType[] {
+        let links : BabylonSpringLinkType[] = [];
+
+        possibleIndexSet.forEach(s => {
+            let link_gridX = gridX + s[0];
+            let link_gridY = gridY + s[1];
+
+            if (link_gridX < maxSize && link_gridY < maxSize && link_gridX >= 0 && link_gridY >= 0) {
+                let arrayIndex = GetLinearIndex(link_gridX, link_gridY, maxSize);
+
+                let linkNode = set[arrayIndex];
+                let restLength = Babylon.Vector3.Distance(node.position, linkNode.position);
+
+                let linkType  : BabylonSpringLinkType= { id : GetSpringLinkTableID(index, arrayIndex), restLength : restLength, nodes : [node, linkNode] };
+                links.push(linkType);
+            }
+        });
+
+        return links;
+    }
+
+    private SetSpringLinkToTable(linkTable : SpringLinkTable, linkTypes: BabylonSpringLinkType[]) {
+        linkTypes.forEach(l => {
+            if (!(l.id in linkTable)) {
+                linkTable[l.id] = l;
+            }
+        });
+
+        return linkTable;
+    }
 
 }
