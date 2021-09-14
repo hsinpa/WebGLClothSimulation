@@ -11,24 +11,29 @@ export default class BabylonMesh {
     private _startY : number;
     private _stepX : number;
     private _stepY : number;
+    private _subdivide : number;
     private _size : Babylon.Vector2;
 
     private _vertices  : number[] = [];
     private _normal : number[] = [];
     private _uv : number[] = [];
     private _triangles : number[] = [];
-    private trigIndexTable : TrigIndexLookTable;
+    private _trigIndexTable : TrigIndexLookTable;
+    public  get trigIndexTable() : Readonly<TrigIndexLookTable> {
+        return this._trigIndexTable;
+    };
 
     public meshNode : BabylonSpringNode[] = [];
 
-    constructor(startX : number, startY : number, stepX: number, stepY : number, size : Babylon.Vector2) {
+    constructor(startX : number, startY : number, stepX: number, stepY : number, subdivide : number, size : Babylon.Vector2) {
         this._startX = startX;
         this._startY = startY;
         this._stepX = stepX;
         this._stepY = stepY;
         this._size = size;
+        this._subdivide = subdivide;
 
-        this.trigIndexTable = {};
+        this._trigIndexTable = {};
     }
 
     public GetVertex() {
@@ -51,12 +56,13 @@ export default class BabylonMesh {
         return mesh;
     }
 
-    public GetVerticePos(xIndex : number, yIndex: number ) {
+    public GetVerticePos(xIndex : number, yIndex: number) {
         let objectX = this._startX + (this._stepX * xIndex), 
-            objectY = this._startY - (this._stepY * yIndex), // Top down approach
-            uniqueID = xIndex + (yIndex * this._size.x);
+            objectY = this._startY - (this._stepY * yIndex); // Top down approach
 
-        return new Babylon.Vector4(objectX, objectY, 0, uniqueID);
+        let arrayIndex = xIndex + (yIndex * (this._subdivide+1));
+
+        return new Babylon.Vector4(objectX, objectY, 0, arrayIndex);
     }
 
     public PushVertices(verticeA: Babylon.Vector4, verticeB : Babylon.Vector4, verticeC : Babylon.Vector4) {
@@ -68,8 +74,8 @@ export default class BabylonMesh {
     }
 
     private PushVertice(vertice: Babylon.Vector4) {
-        if (vertice.w in this.trigIndexTable) {
-            let cacheIndex = this.trigIndexTable[vertice.w];
+        if (vertice.w in this._trigIndexTable) {
+            let cacheIndex = this._trigIndexTable[vertice.w];
 
             this._triangles.push(cacheIndex);
 
@@ -86,7 +92,7 @@ export default class BabylonMesh {
         this._triangles.push(index);
         this._uv.push( (-this._startX - vertice.x) / this._size.x, 1 - ((this._startY - vertice.y) / this._size.y));
 
-        this.trigIndexTable[vertice.w] = index;
+        this._trigIndexTable[vertice.w] = index;
 
         return index;
     }

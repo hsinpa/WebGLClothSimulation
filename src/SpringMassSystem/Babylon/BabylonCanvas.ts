@@ -34,7 +34,7 @@ export default class BabylonCanvas {
     private ConfigSceneSetting(scene : Babylon.Scene, aspectRatio : number)  {
 
         //Camera
-        var camera = new Babylon.UniversalCamera("UniversalCamera", new Babylon.Vector3(0, 2, -10), scene);
+        var camera = new Babylon.UniversalCamera("UniversalCamera", new Babylon.Vector3(3, 1, -10), scene);
         camera.mode = Babylon.Camera.PERSPECTIVE_CAMERA;
         let cameraSize = 3;
         camera.orthoBottom = -cameraSize;
@@ -56,7 +56,7 @@ export default class BabylonCanvas {
         // sphere.position = new Babylon.Vector3(0, 0, 0);
 
         let clothMaterial = GetMaterial("deformMesh", scene);
-        let customPlaneMesh = new BabylonClothMesh(this._engine, new Babylon.Vector2(15, 15), 2);
+        let customPlaneMesh = new BabylonClothMesh(this._engine, new Babylon.Vector2(15, 15), 10);
         customPlaneMesh.mesh.position = new Babylon.Vector3(0, 0, 1);
         customPlaneMesh.mesh.rotate(new Babylon.Vector3(0, 1, 0), Math.PI);
         customPlaneMesh.mesh.material = clothMaterial;
@@ -65,10 +65,9 @@ export default class BabylonCanvas {
 
         this._engine.runRenderLoop(() => {
              scene.render();
-             
-            let offset = customPlaneMesh.Update();
-            customPlaneMesh.mesh.setVerticesData("a_offset", offset, true, 3);
-
+             let offset = customPlaneMesh.Update();
+             customPlaneMesh.mesh.setVerticesData("a_offset", offset, true, 3);     
+                  
         });
 
         window.addEventListener('resize', () => {

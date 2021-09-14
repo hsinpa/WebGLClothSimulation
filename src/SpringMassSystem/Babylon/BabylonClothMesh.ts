@@ -1,5 +1,5 @@
 import Babylon from "babylonjs";
-import BabylonMesh from "./BabylonMesh";
+import BabylonMesh, {TrigIndexLookTable} from "./BabylonMesh";
 import BabylonSpringMass from './BabylonSpringMass';
 import BabylonSpringNode from './BabylonSpringNode';
 import {SpringNodeType, SpringMassConfig} from '../SpringMassStatic'
@@ -18,20 +18,21 @@ export default class BabylonClothMesh {
         this.meshData = this.GetVertexAndIndice(size, subdivide );
         let vertex = this.meshData.GetVertex();
         this.mesh = this.meshData.GetMesh("cloth_mesh [Generate]", vertex);
-        
+
+        this.springMass
         this.springMass.GenerateSpringLink(subdivide);
         this.config = this.GetDefaultSpringMassConfig();
     }
 
     public Update() {
-        let l = this.springMass._springNodeArray.length;
-        let randomOffset = [];
-        for (let i = 0 ; i < l ; i++) {
-            randomOffset.push(GetRandomRange(-1, 1), GetRandomRange(-1, 1), GetRandomRange(-1, 1));
-        }
+        // let l = this.springMass._springNodeArray.length;
+        // let randomOffset = [];
+        // for (let i = 0 ; i < l ; i++) {
+        //     randomOffset.push(GetRandomRange(-1, 1), GetRandomRange(-1, 1), GetRandomRange(-1, 1));
+        // }
 
-        return randomOffset;
-        //return this.springMass.UpdatePhysics(this.config);
+        // return randomOffset;
+        return this.springMass.UpdatePhysics(this.config, this.meshData.trigIndexTable);
     }
 
     private GetVertexAndIndice(size: Babylon.Vector2, subdivide: number) {
@@ -40,7 +41,7 @@ export default class BabylonClothMesh {
         let stepX = size.x / (subdivide);
         let stepY = size.y / (subdivide);
 
-        let meshHelper = new BabylonMesh(startX, startY, stepX, stepY, size);
+        let meshHelper = new BabylonMesh(startX, startY, stepX, stepY, subdivide, size);
 
         for (let y = 0; y <= subdivide; y++) {
             for (let x = 0; x <= subdivide; x++) {
@@ -76,7 +77,7 @@ export default class BabylonClothMesh {
         return {
             k : 7,
             mass : 5,
-            gravity : 10,
+            gravity : 20,
             timeStep : 0.02,
             damping : 30
         }

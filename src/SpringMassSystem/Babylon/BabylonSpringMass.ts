@@ -1,5 +1,5 @@
 import Babylon from "babylonjs";
-import BabylonMesh from './BabylonMesh';
+import BabylonMesh, {TrigIndexLookTable} from "./BabylonMesh";
 import BabylonSpringNode from './BabylonSpringNode';
 import {BabylonSpringLinkType, SpringMassConfig} from '../SpringMassStatic';
 import {GetLinearIndex, GetSpringLinkTableID, ShuffleArray} from '../../Utility/SpringMassUtility';
@@ -22,15 +22,28 @@ export default class BabylonSpringMass {
         this._springNodeArray.push(node);
     }
 
-    public UpdatePhysics(config : SpringMassConfig) {
-        let offsetArray :number[] = [];
+    public UpdatePhysics(config : SpringMassConfig, trigLookupTable : TrigIndexLookTable) {
+        let offsetArray : Array<number> = new Array(this._springNodeArray.length*3);
 
-        this._springNodeArray.forEach(x=> {
-            x.UpdateVelocity(config, this._subdivide+1, this._springLinkTable );
-            let offset = x.offset;
+        let nodeLength = this._springNodeArray.length;
+        let cacheVector = new Babylon.Vector3(0,0,0);
 
-            offsetArray.push(offset.x, offset.y, offset.z);
-        });
+        for (let i = 0; i < nodeLength; i++) {
+            if (i in trigLookupTable) {
+                let vertexIndex = trigLookupTable[i];
+                if (this._springNodeArray[i].isStatic) {
+                    cacheVector.set(0,0,0);
+                } else {
+                    this._springNodeArray[i].UpdateVelocity(config, this._subdivide+1, this._springLinkTable);
+                    cacheVector = cacheVector.copyFrom(this._springNodeArray[i].offset);   
+                }
+
+                let base = vertexIndex * 3;
+                offsetArray[base] = cacheVector.x;
+                offsetArray[base+1] = cacheVector.y;
+                offsetArray[base+2] = cacheVector.z;
+            }
+        }
 
         return offsetArray;
     }
