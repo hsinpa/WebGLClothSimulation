@@ -13,11 +13,12 @@ export default class BabylonClothMesh {
 
     public config : SpringMassConfig;
 
-    constructor(size : Babylon.Vector2, subdivide : number) {
+    constructor(engine : Babylon.Engine, size : Babylon.Vector2, subdivide : number) {
         this.springMass = new BabylonSpringMass(subdivide);
         this.meshData = this.GetVertexAndIndice(size, subdivide );
-        this.mesh = this.meshData.GetMesh("cloth_mesh [Generate]");
-
+        let vertex = this.meshData.GetVertex();
+        this.mesh = this.meshData.GetMesh("cloth_mesh [Generate]", vertex);
+        
         this.springMass.GenerateSpringLink(subdivide);
         this.config = this.GetDefaultSpringMassConfig();
     }

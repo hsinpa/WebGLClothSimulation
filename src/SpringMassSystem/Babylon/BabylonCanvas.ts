@@ -56,21 +56,18 @@ export default class BabylonCanvas {
         // sphere.position = new Babylon.Vector3(0, 0, 0);
 
         let clothMaterial = GetMaterial("deformMesh", scene);
-        let customPlaneMesh = new BabylonClothMesh(new Babylon.Vector2(15, 15), 2);
+        let customPlaneMesh = new BabylonClothMesh(this._engine, new Babylon.Vector2(15, 15), 2);
         customPlaneMesh.mesh.position = new Babylon.Vector3(0, 0, 1);
         customPlaneMesh.mesh.rotate(new Babylon.Vector3(0, 1, 0), Math.PI);
-
-
-        let offset = customPlaneMesh.Update();
-        clothMaterial = clothMaterial.setArray3("a_offset", offset);
         customPlaneMesh.mesh.material = clothMaterial;
 
         scene.addMesh(customPlaneMesh.mesh);
 
         this._engine.runRenderLoop(() => {
              scene.render();
-
-             let offset = customPlaneMesh.Update();
+             
+            let offset = customPlaneMesh.Update();
+            customPlaneMesh.mesh.setVerticesData("a_offset", offset, true, 3);
 
         });
 

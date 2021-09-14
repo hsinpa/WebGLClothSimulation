@@ -31,9 +31,7 @@ export default class BabylonMesh {
         this.trigIndexTable = {};
     }
 
-    public GetMesh(name : string) : Babylon.Mesh {
-        let mesh = new Babylon.Mesh(name);
-
+    public GetVertex() {
         let vertex = new Babylon.VertexData();
         vertex.positions = this._vertices;
         vertex.indices = this._triangles;
@@ -42,7 +40,13 @@ export default class BabylonMesh {
         Babylon.VertexData.ComputeNormals(vertex.positions, vertex.indices, this._normal);
         vertex.normals = this._normal;
 
-        vertex.applyToMesh(mesh);
+        return vertex;
+    }
+
+    public GetMesh(name : string, vertexData : Babylon.VertexData) : Babylon.Mesh {
+        let mesh = new Babylon.Mesh(name);
+
+        vertexData.applyToMesh(mesh, true);
 
         return mesh;
     }
