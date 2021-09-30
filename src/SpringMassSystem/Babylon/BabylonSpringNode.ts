@@ -58,21 +58,21 @@ export default class BabylonSpringNode {
 
         //Calculate Damping
         let dampingForce = this._velocity.scale(springMassConfig.damping);
-        this._acceleration = this._acceleration.subtract(dampingForce);
+        this._acceleration = this._acceleration.subtractInPlace(dampingForce);
 
         //Currently, only gravity
         let externalForce = new Babylon.Vector3(0 , springMassConfig.gravity, 0);
         externalForce = externalForce.scaleToRef(springMassConfig.mass, externalForce);
-        this._acceleration = this._acceleration.add(externalForce);
+        this._acceleration = this._acceleration.addInPlace(externalForce);
 
         let m = 1 / springMassConfig.mass;
-        this._acceleration = this._acceleration.scale(m);
+        this._acceleration = this._acceleration.scaleInPlace(m);
 
         //Euler integration
-        this._acceleration = this._acceleration.scale(springMassConfig.timeStep);
-        this._velocity = this._velocity.add(this._acceleration);
+        this._acceleration = this._acceleration.scaleInPlace(springMassConfig.timeStep);
+        this._velocity = this._velocity.addInPlace(this._acceleration);
 
-        this._position = this._position.addToRef(this._velocity, this._position);
+        this._position = this._position.addInPlace(this._velocity);
     }
 
     private IntegrateForce(maxSize : number, lookUpTable : SpringLinkTable, springMassConfig : SpringMassConfig) : Babylon.Vector3 {
@@ -80,7 +80,7 @@ export default class BabylonSpringNode {
 
         let lookUpPossibleSpring = [[0,1], [1, 0], [0, -1], [-1, 0], //Structural Spring
                                     [1,1], [1, -1], [-1, -1], [-1, 1], //Shear Spring
-                                    [0, 2], [2, 0], [0, -2], [-2, 0], //Shear Spring
+                                    //[0, 2], [2, 0], [0, -2], [-2, 0], //Shear Spring
                                 ];
         //console.log("Index " + this.index);
 
@@ -100,7 +100,7 @@ export default class BabylonSpringNode {
                     //console.log(tableID, this.position, linkNode.position);
 
                     let springForce = this.CalSpringForce(this, linkNode, springMassConfig.k, springLink.restLength);
-                    acceleration = acceleration.add(springForce);
+                    acceleration = acceleration.addInPlace(springForce);
                 }
             }
         });
@@ -111,13 +111,13 @@ export default class BabylonSpringNode {
     private CalSpringForce(mainNode : BabylonSpringNode, linkNode : BabylonSpringNode, k : number, 
         restLength : number) : Babylon.Vector3 {
 
-        let diff = mainNode.position.subtract(linkNode.position);
-        let springForce = Babylon.Vector3.Normalize(diff);
-            springForce = springForce.scale(restLength);
-            springForce = linkNode.position.add(springForce);
+        let restDiff = mainNode.position.subtract(linkNode.position);
+        let restDir = restDiff.normalize();
+        let restPos = linkNode.position.add( restDir.scaleInPlace(restLength) );
 
-        let forceAddToMainNode = mainNode.position.subtract(springForce);
+        let springForce = mainNode.position.subtract(restPos);
+            springForce.scaleInPlace(-k);
 
-        return forceAddToMainNode.scale(-k);
+        return springForce;
     }
 }

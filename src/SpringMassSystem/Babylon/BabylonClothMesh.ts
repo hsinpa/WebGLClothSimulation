@@ -76,12 +76,10 @@ export default class BabylonClothMesh {
     private GetDefaultSpringMassConfig() : SpringMassConfig {
         return {
             k : 7,
-            mass : 5,
-            gravity : 20,
+            mass : 10,
+            gravity : 10,
             timeStep : 0.02,
             damping : 30
         }
     }
-
-
 }
