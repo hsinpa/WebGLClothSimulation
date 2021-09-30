@@ -1,6 +1,6 @@
 import Babylon from "babylonjs";
 import BabylonClothMesh from './BabylonClothMesh';
-import {SetMaterial, GetMaterial} from './BabylonUtilFunc';
+import {SetMaterial, GetMaterial, IntersectionPlane, IntersectionResult} from './BabylonUtilFunc';
 import WebglUtility from '../../Utility/WebglUtility';
 import InputHandler, {ClickState} from "../../Utility/Input/InputHandler";
 
@@ -11,6 +11,9 @@ export default class BabylonCanvas {
     private _webglUtility : WebglUtility;
     private _inputHandler : InputHandler;
 
+    private _cacheRay : Babylon.Ray;
+    private _cacheCamera : Babylon.UniversalCamera;
+    private _cachePlane : Babylon.Mesh;
 
     constructor(canvasQuery : string) {
         this._view = document.querySelector(canvasQuery) as HTMLCanvasElement
@@ -18,6 +21,7 @@ export default class BabylonCanvas {
         this._scene = new Babylon.Scene(this._engine);
         this._webglUtility = new WebglUtility();
         this._inputHandler = new InputHandler();
+        this._cacheRay = Babylon.Ray.Zero();
 
         this._inputHandler.RegisterButtonEvent(this.OnMouseClickEvent.bind(this));
 
@@ -40,17 +44,17 @@ export default class BabylonCanvas {
     private ConfigSceneSetting(scene : Babylon.Scene, aspectRatio : number)  {
 
         //Camera
-        var camera = new Babylon.UniversalCamera("UniversalCamera", new Babylon.Vector3(0, 10, -20), scene);
-        camera.mode = Babylon.Camera.PERSPECTIVE_CAMERA;
+        this._cacheCamera = new Babylon.UniversalCamera("UniversalCamera", new Babylon.Vector3(0, 20, -20), scene);
+        this._cacheCamera.mode = Babylon.Camera.PERSPECTIVE_CAMERA;
         let cameraSize = 3;
 
         // Targets the camera to a particular position. In this case the scene origin
-        camera.setTarget(Babylon.Vector3.Zero());
+        this._cacheCamera.setTarget(Babylon.Vector3.Zero());
 
 
         
         // Attach the camera to the canvas
-        camera.attachControl(this._view, true);
+        //camera.attachControl(this._view, true);
 
         const light = new Babylon.HemisphericLight(
              "light",
@@ -70,10 +74,11 @@ export default class BabylonCanvas {
         scene.addMesh(customPlaneMesh.mesh);
 
 
-        const plane = Babylon.Mesh.CreatePlane("plane", 4, scene);
-        plane.position = new Babylon.Vector3(0, -1, 0);
-        console.log(plane.forward);
+        this._cachePlane = Babylon.Mesh.CreatePlane("plane", 4, scene);
+        this._cachePlane.position = new Babylon.Vector3(0, -1, 0);
+        //this._cachePlane.rotate(new Babylon.Vector3(0, 1, 0), Math.PI);
 
+        console.log(this._cachePlane.forward);
         
         this._engine.runRenderLoop(() => {
              scene.render();
@@ -91,8 +96,14 @@ export default class BabylonCanvas {
         if (state == ClickState.Click) {
             console.log("ClickState.Click");
 
-            var pickResult = this._scene.pick(this._scene.pointerX, this._scene.pointerY);
-            console.log(`Origin ${pickResult.ray.origin}, Direction ${pickResult.ray.direction}, HasHit ${pickResult.hit}`);
+
+            this._scene.createPickingRayInCameraSpaceToRef(this._scene.pointerX, this._scene.pointerY, this._cacheRay, this._cacheCamera);
+            // var pickResult = this._scene.pick(this._scene.pointerX, this._scene.pointerY);
+            //console.log(`Origin ${this._cacheRay.origin}, Direction ${this._cacheRay.direction}`);
+            let f = this._cachePlane.forward;
+            //f.z = -f.z;
+            let result = IntersectionPlane(this._cachePlane.position, f, this._cacheCamera.position, this._cacheRay.direction);
+            console.log(`Origin ${this._cacheCamera.position}, Direction ${this._cacheRay.direction}, Valid ${result.valid}, T ${result.t}, F ${f}`);
         }
     }
 

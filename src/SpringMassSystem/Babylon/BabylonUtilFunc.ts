@@ -22,3 +22,24 @@ export function GetMaterial(shader_name : string, scene : Babylon.Scene) {
 
 }
 
+export function IntersectionPlane(planePos : Babylon.Vector3, planeNormal : Babylon.Vector3, rayPos : Babylon.Vector3, rayNormal : Babylon.Vector3) {
+  let denom = Babylon.Vector3.Dot(planeNormal, rayNormal);
+  let result : IntersectionResult = {valid : false, t : 0};
+
+  if (denom > 1e-6) { 
+      let p0l0 = planePos.subtract(rayPos); 
+      let t = Babylon.Vector3.Dot(p0l0, planeNormal) / denom; 
+
+      result.t = t ;
+      result.valid = t >= 0;
+
+      return result; 
+  }
+
+  return result; 
+}
+
+export interface IntersectionResult {
+  valid : boolean,
+  t : number
+}
