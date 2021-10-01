@@ -94,18 +94,21 @@ export default class BabylonCanvas {
 
     OnMouseClickEvent(state : ClickState) {
         if (state == ClickState.Click) {
-            console.log("ClickState.Click");
 
+            //this._scene.createPickingRayInCameraSpaceToRef(this._scene.pointerX, this._scene.pointerY, this._cacheRay, this._cacheCamera);
 
-            this._scene.createPickingRayInCameraSpaceToRef(this._scene.pointerX, this._scene.pointerY, this._cacheRay, this._cacheCamera);
-            // var pickResult = this._scene.pick(this._scene.pointerX, this._scene.pointerY);
-            //console.log(`Origin ${this._cacheRay.origin}, Direction ${this._cacheRay.direction}`);
+            this._scene.createPickingRayToRef(this._scene.pointerX, this._scene.pointerY, Babylon.Matrix.Identity(), this._cacheRay,null);
+
+            console.log(`CacheRay Origin ${this._cacheRay.origin}, CacheRay Direction ${this._cacheRay.direction}}`);
+
+            // var picksResult = this._scene.pick(this._scene.pointerX, this._scene.pointerY);
+            // console.log(`Pick Origin ${picksResult.ray.origin}, Pick Direction ${picksResult.ray.direction},  Pick ${picksResult.hit}`);
             let f = this._cachePlane.forward;
             //f.z = -f.z;
-            let result = IntersectionPlane(this._cachePlane.position, f, this._cacheCamera.position, this._cacheRay.direction);
+            let result = IntersectionPlane(this._cachePlane.position, f, this._cacheRay.origin, this._cacheRay.direction);
             //console.log(`Origin ${this._cacheCamera.position}, Direction ${this._cacheRay.direction}, Valid ${result.valid}, T ${result.t}, F ${f}`);
         
-            let landPoint = this._cacheCamera.position.add(this._cacheRay.direction.scale(result.t));
+            let landPoint = this._cacheRay.origin.add(this._cacheRay.direction.scale(result.t));
             let distance = DistanceFromPlaneOrigin(this._cachePlane.position, this._cachePlane.forward, landPoint);
 
             console.log(distance);

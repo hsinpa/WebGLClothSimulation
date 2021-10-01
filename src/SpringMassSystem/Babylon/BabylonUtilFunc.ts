@@ -40,17 +40,17 @@ export function IntersectionPlane(planePos : Babylon.Vector3, planeNormal : Baby
 }
 
 export function DistanceFromPlaneOrigin(planeOrigin : Babylon.Vector3, planeNormal : Babylon.Vector3, landPos : Babylon.Vector3) {
-  let distance = landPos.subtract(planeOrigin);
+  let distance = landPos.subtract(planeOrigin).length();
 
-  let D = new Babylon.Vector3(Math.pow(planeNormal.x, 2), Math.pow(planeNormal.y, 2), Math.pow(planeNormal.z, 2) );
-      D = D.multiplyInPlace(distance);
-
+  let D = planeNormal.multiply(landPos);
+  let d = D.x + D.y + D.z;
+  
   let lDenomiator = 1 / planeNormal.length();
-  let d = (D.x + D.y + D.z) * lDenomiator;
 
-  let result = planeOrigin.multiply(planeNormal).scale(lDenomiator);
+  let result = planeOrigin.multiply(planeNormal);
+  console.log("result " + distance);
 
-  return (result.x + result.y + result.z) - d;
+  return (result.x + result.y + result.z + d) * lDenomiator;
 }
 
 export interface IntersectionResult {
