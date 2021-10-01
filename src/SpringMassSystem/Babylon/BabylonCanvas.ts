@@ -1,6 +1,6 @@
 import Babylon from "babylonjs";
 import BabylonClothMesh from './BabylonClothMesh';
-import {SetMaterial, GetMaterial, IntersectionPlane, IntersectionResult} from './BabylonUtilFunc';
+import {SetMaterial, GetMaterial, IntersectionPlane, IntersectionResult, DistanceFromPlaneOrigin} from './BabylonUtilFunc';
 import WebglUtility from '../../Utility/WebglUtility';
 import InputHandler, {ClickState} from "../../Utility/Input/InputHandler";
 
@@ -103,7 +103,12 @@ export default class BabylonCanvas {
             let f = this._cachePlane.forward;
             //f.z = -f.z;
             let result = IntersectionPlane(this._cachePlane.position, f, this._cacheCamera.position, this._cacheRay.direction);
-            console.log(`Origin ${this._cacheCamera.position}, Direction ${this._cacheRay.direction}, Valid ${result.valid}, T ${result.t}, F ${f}`);
+            //console.log(`Origin ${this._cacheCamera.position}, Direction ${this._cacheRay.direction}, Valid ${result.valid}, T ${result.t}, F ${f}`);
+        
+            let landPoint = this._cacheCamera.position.add(this._cacheRay.direction.scale(result.t));
+            let distance = DistanceFromPlaneOrigin(this._cachePlane.position, this._cachePlane.forward, landPoint);
+
+            console.log(distance);
         }
     }
 
