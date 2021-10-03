@@ -3,6 +3,7 @@ import BabylonClothMesh from './BabylonClothMesh';
 import {SetMaterial, GetMaterial, IntersectionPlane, IntersectionResult, DistanceFromPlaneOrigin} from './BabylonUtilFunc';
 import WebglUtility from '../../Utility/WebglUtility';
 import InputHandler, {ClickState} from "../../Utility/Input/InputHandler";
+import BabylonSpringNode from "./BabylonSpringNode";
 
 export default class BabylonCanvas {
     private _view : HTMLCanvasElement;
@@ -13,17 +14,25 @@ export default class BabylonCanvas {
 
     private _cacheRay : Babylon.Ray;
     private _cacheCamera : Babylon.UniversalCamera;
-    private _cachePlane : Babylon.Mesh;
+    private _cachePlane : BabylonClothMesh;
+
+    private _selectedNode : BabylonSpringNode;
+    private _previousScrX : number;
+    private _previousScrY : number;
+    private _deltaScrX : number;
+    private _deltaScrY : number;
+
 
     constructor(canvasQuery : string) {
         this._view = document.querySelector(canvasQuery) as HTMLCanvasElement
         this._engine = new Babylon.Engine(this._view, true);
+
         this._scene = new Babylon.Scene(this._engine);
         this._webglUtility = new WebglUtility();
         this._inputHandler = new InputHandler();
         this._cacheRay = Babylon.Ray.Zero();
 
-        this._inputHandler.RegisterButtonEvent(this.OnMouseClickEvent.bind(this));
+        this._inputHandler.RegisterButtonEvent(this._view, this.OnMouseClickEvent.bind(this));
 
         this.CanvasInit();
     }
@@ -66,25 +75,23 @@ export default class BabylonCanvas {
 
         let clothMaterial = GetMaterial("deformMesh", scene);
         clothMaterial.wireframe = true;
-        let customPlaneMesh = new BabylonClothMesh(this._engine, new Babylon.Vector2(10, 10), 5);
-        customPlaneMesh.mesh.position = new Babylon.Vector3(0, 0, 1);
-        customPlaneMesh.mesh.rotate(new Babylon.Vector3(0, 1, 0), Math.PI);
-        customPlaneMesh.mesh.material = clothMaterial;
+        this._cachePlane = new BabylonClothMesh(this._engine, new Babylon.Vector2(10, 10), 5);
+        this._cachePlane.mesh.position = new Babylon.Vector3(0, 0, 1);
+        this._cachePlane.mesh.rotate(new Babylon.Vector3(0, 1, 0), Math.PI);
+        this._cachePlane.mesh.material = clothMaterial;
 
-        scene.addMesh(customPlaneMesh.mesh);
-
-
-        this._cachePlane = Babylon.Mesh.CreatePlane("plane", 4, scene);
-        this._cachePlane.position = new Babylon.Vector3(0, -1, 0);
-        //this._cachePlane.rotate(new Babylon.Vector3(0, 1, 0), Math.PI);
-
-        console.log(this._cachePlane.forward);
+        scene.addMesh(this._cachePlane.mesh);
         
         this._engine.runRenderLoop(() => {
              scene.render();
-             let offset = customPlaneMesh.Update();
-             customPlaneMesh.mesh.setVerticesData("a_offset", offset, true, 3);     
+             let offset = this._cachePlane.Update();
+             this._cachePlane.mesh.setVerticesData("a_offset", offset, true, 3);     
              this._inputHandler.OnUpdate();
+
+             this._deltaScrX = this._previousScrX - this._scene.pointerX;
+             this._deltaScrY = this._scene.pointerY - this._previousScrY;
+             this._previousScrX = this._scene.pointerX;
+             this._previousScrY = this._scene.pointerY;
         });
 
         window.addEventListener('resize', () => {
@@ -93,27 +100,30 @@ export default class BabylonCanvas {
     }
 
     OnMouseClickEvent(state : ClickState) {
-        if (state == ClickState.Click) {
+        if (state == ClickState.Up) {
 
+            this._selectedNode = null;
+            return;
+        }
+
+        if (this._selectedNode != null && state == ClickState.Down) {
+            this._selectedNode.UpdateLocalOffset(new Babylon.Vector3(this._deltaScrX, this._deltaScrY));
+
+            return;
+        }
+
+        if (state == ClickState.Down) {
             //this._scene.createPickingRayInCameraSpaceToRef(this._scene.pointerX, this._scene.pointerY, this._cacheRay, this._cacheCamera);
 
             this._scene.createPickingRayToRef(this._scene.pointerX, this._scene.pointerY, Babylon.Matrix.Identity(), this._cacheRay,null);
 
-            console.log(`CacheRay Origin ${this._cacheRay.origin}, CacheRay Direction ${this._cacheRay.direction}}`);
+            let collideNode = this._cachePlane.GetCollideCtrlNode(this._cacheRay.origin, this._cacheRay.direction, this._cacheCamera);
 
-            // var picksResult = this._scene.pick(this._scene.pointerX, this._scene.pointerY);
-            // console.log(`Pick Origin ${picksResult.ray.origin}, Pick Direction ${picksResult.ray.direction},  Pick ${picksResult.hit}`);
-            let f = this._cachePlane.forward;
-            //f.z = -f.z;
-            let result = IntersectionPlane(this._cachePlane.position, f, this._cacheRay.origin, this._cacheRay.direction);
-            //console.log(`Origin ${this._cacheCamera.position}, Direction ${this._cacheRay.direction}, Valid ${result.valid}, T ${result.t}, F ${f}`);
-        
-            let landPoint = this._cacheRay.origin.add(this._cacheRay.direction.scale(result.t));
-            let distance = DistanceFromPlaneOrigin(this._cachePlane.position, this._cachePlane.forward, landPoint);
-
-            console.log(distance);
+            if (collideNode != null) {
+                this._selectedNode = collideNode;
+            }
         }
-    }
+    }   
 
 
 }

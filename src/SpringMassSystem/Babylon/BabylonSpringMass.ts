@@ -1,7 +1,7 @@
 import Babylon from "babylonjs";
 import BabylonMesh, {TrigIndexLookTable} from "./BabylonMesh";
 import BabylonSpringNode from './BabylonSpringNode';
-import {BabylonSpringLinkType, SpringMassConfig} from '../SpringMassStatic';
+import {BabylonSpringLinkType, SpringMassConfig, SpringNodeType} from '../SpringMassStatic';
 import {GetLinearIndex, GetSpringLinkTableID, ShuffleArray} from '../../Utility/SpringMassUtility';
 
 export interface SpringLinkTable {
@@ -14,12 +14,17 @@ export default class BabylonSpringMass {
     private  _springLinkTable : SpringLinkTable;
     private _subdivide : number;
 
+    public controlNodeArray : BabylonSpringNode[] = [];
+
     constructor(subdivide : number) {
         this._subdivide = subdivide;
     }
 
     public PushNode(node : BabylonSpringNode) {
         this._springNodeArray.push(node);
+
+        if (node.type == SpringNodeType.ControlPoint)
+            this.controlNodeArray.push(node);
     }
 
     public UpdatePhysics(config : SpringMassConfig, trigLookupTable : TrigIndexLookTable) {
@@ -32,7 +37,7 @@ export default class BabylonSpringMass {
             if (i in trigLookupTable) {
                 let vertexIndex = trigLookupTable[i];
                 if (this._springNodeArray[i].isStatic) {
-                    cacheVector.set(0,0,0);
+                    cacheVector.copyFrom(this._springNodeArray[i].offset); 
                 } else {
                     this._springNodeArray[i].UpdateVelocity(config, this._subdivide+1, this._springLinkTable);
                     cacheVector = cacheVector.copyFrom(this._springNodeArray[i].offset);   

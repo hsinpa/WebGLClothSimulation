@@ -36,6 +36,9 @@ class InputHandler {
     private _mouseClickCallback : InputMouseClickCallback;
     private isMouseDown = false;
 
+    public deltaArray = [0, 0];
+    public mousePosition = [0, 0];
+
     constructor() {
 
     }
@@ -44,20 +47,20 @@ class InputHandler {
         return false;
     }
 
-    public RegisterButtonEvent(callback : InputMouseClickCallback) {
+    public RegisterButtonEvent(canvas : HTMLCanvasElement,  callback : InputMouseClickCallback) {
         this._mouseClickCallback = callback;
         let self = this;
 
-        window.addEventListener('click', e => {
+        canvas.addEventListener('click', e => {
             callback(ClickState.Click);
         });
 
-        window.addEventListener('mousedown', e => {
+        canvas.addEventListener('pointerdown', e => {
             callback(ClickState.Down);
             this.isMouseDown = true;
         });
 
-        window.addEventListener('mouseup', e => {
+        canvas.addEventListener('pointerup', e => {
             this.isMouseDown = false;
             callback(ClickState.Up);
         });

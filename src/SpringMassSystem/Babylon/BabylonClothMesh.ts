@@ -4,6 +4,7 @@ import BabylonSpringMass from './BabylonSpringMass';
 import BabylonSpringNode from './BabylonSpringNode';
 import {SpringNodeType, SpringMassConfig} from '../SpringMassStatic'
 import {GetRandomRange} from '../../Utility/UtilityFunc'
+import {IntersectionPlane, IntersectionResult, DistanceFromPlaneOrigin} from './BabylonUtilFunc';
 
 export default class BabylonClothMesh {
 
@@ -33,6 +34,28 @@ export default class BabylonClothMesh {
 
         // return randomOffset;
         return this.springMass.UpdatePhysics(this.config, this.meshData.trigIndexTable);
+    }
+
+    public GetCollideCtrlNode(rayOriPos : Babylon.Vector3, rayOriDir : Babylon.Vector3, camera : Babylon.Camera) {
+        let size = 0.3;
+        let ctrlNodeLength = this.springMass.controlNodeArray.length;
+
+        for (let i = 0; i < ctrlNodeLength; i++) {
+            let node = this.springMass.controlNodeArray[i];
+            let nodeWorldPos = node.position.add(this.springMass.controlNodeArray[i].offset).add(this.mesh.position);
+            
+            let lookatDir = nodeWorldPos.subtract(camera.position).normalize();
+            let result = IntersectionPlane(nodeWorldPos, lookatDir, rayOriPos, rayOriDir);
+            let landPoint = rayOriPos.add(rayOriDir.scale(result.t));
+
+            let dist = nodeWorldPos.subtractInPlace(landPoint).length();
+            if (dist < size) {
+                console.log("dist " + dist +", "+ this.springMass.controlNodeArray[i].position);
+                return this.springMass.controlNodeArray[i];
+            }
+        }
+
+        return null;
     }
 
     private GetVertexAndIndice(size: Babylon.Vector2, subdivide: number) {

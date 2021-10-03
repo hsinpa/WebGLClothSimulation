@@ -28,7 +28,7 @@ export default class SpringMassSystem {
         this.lastMousePosition = [0,0];
 
         this.inputHandler.RegisterMouseMovement( this._canvas.canvasDom,this.OnMouseUIEvent.bind(this));
-        this.inputHandler.RegisterButtonEvent(this.OnMouseClickEvent.bind(this));
+        this.inputHandler.RegisterButtonEvent(this._canvas.canvasDom, this.OnMouseClickEvent.bind(this));
 
         window.requestAnimationFrame(this.FrameLoop.bind(this));
     }

@@ -53,6 +53,10 @@ export default class BabylonSpringNode {
         this.isStatic = type == SpringNodeType.ControlPoint ? true : false;
     }
 
+    public UpdateLocalOffset(offetDelta : Babylon.Vector3) {
+        this._position.addInPlace(offetDelta);
+    }
+
     public UpdateVelocity(springMassConfig : SpringMassConfig, maxSize : number, lookUpTable : SpringLinkTable) {
         this._acceleration = this.IntegrateForce(maxSize, lookUpTable, springMassConfig);
 
