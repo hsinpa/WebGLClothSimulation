@@ -33,6 +33,7 @@ export default class BabylonClothMesh {
         // }
 
         // return randomOffset;
+        
         return this.springMass.UpdatePhysics(this.config, this.meshData.trigIndexTable);
     }
 
@@ -81,12 +82,12 @@ export default class BabylonClothMesh {
                 if (y == subdivide || x == subdivide) continue;
 
                 let aVertice = meshHelper.GetVerticePos(x, y);
-                let bVertice = meshHelper.GetVerticePos(x+1, y);
-                let cVertice = meshHelper.GetVerticePos(x+1, y+1);
+                let bVertice = meshHelper.GetVerticePos(x+1, y+1);
+                let cVertice = meshHelper.GetVerticePos(x+1, y);
 
-                let dVertice = meshHelper.GetVerticePos(x+1, y+1);
+                let dVertice = meshHelper.GetVerticePos(x, y);
                 let eVertice = meshHelper.GetVerticePos(x, y+1);
-                let fVertice = meshHelper.GetVerticePos(x, y);
+                let fVertice = meshHelper.GetVerticePos(x+1, y+1);
 
                 meshHelper.PushVertices(aVertice, bVertice, cVertice);
                 meshHelper.PushVertices(dVertice, eVertice, fVertice);
@@ -99,7 +100,7 @@ export default class BabylonClothMesh {
     private GetDefaultSpringMassConfig() : SpringMassConfig {
         return {
             k : 7,
-            mass : 10,
+            mass : 5,
             gravity : 10,
             timeStep : 0.02,
             damping : 30

@@ -63,7 +63,7 @@ export default class BabylonCanvas {
 
         
         // Attach the camera to the canvas
-        //camera.attachControl(this._view, true);
+        //this._cacheCamera.attachControl(this._view, true);
 
         const light = new Babylon.HemisphericLight(
              "light",
@@ -75,9 +75,9 @@ export default class BabylonCanvas {
 
         let clothMaterial = GetMaterial("deformMesh", scene);
         clothMaterial.wireframe = true;
-        this._cachePlane = new BabylonClothMesh(this._engine, new Babylon.Vector2(10, 10), 5);
+        this._cachePlane = new BabylonClothMesh(this._engine, new Babylon.Vector2(10, 10), 3);
         this._cachePlane.mesh.position = new Babylon.Vector3(0, 0, 1);
-        this._cachePlane.mesh.rotate(new Babylon.Vector3(0, 1, 0), Math.PI);
+        //this._cachePlane.mesh.rotate(new Babylon.Vector3(0, 1, 0), Math.PI);
         this._cachePlane.mesh.material = clothMaterial;
 
         scene.addMesh(this._cachePlane.mesh);

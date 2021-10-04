@@ -84,7 +84,7 @@ export default class BabylonSpringNode {
 
         let lookUpPossibleSpring = [[0,1], [1, 0], [0, -1], [-1, 0], //Structural Spring
                                     [1,1], [1, -1], [-1, -1], [-1, 1], //Shear Spring
-                                    //[0, 2], [2, 0], [0, -2], [-2, 0], //Shear Spring
+                                    [0, 2], [2, 0], [0, -2], [-2, 0], //Shear Spring
                                 ];
         //console.log("Index " + this.index);
 
@@ -100,7 +100,8 @@ export default class BabylonSpringNode {
                 if (tableID in lookUpTable) {
                     let springLink = lookUpTable[tableID];
 
-                    let linkNode = Math.floor(springLink.nodes[0].index) == Math.floor(this.index) ? springLink.nodes[1] : springLink.nodes[0];
+                    //console.log(springLink.nodes[0].index, Math.floor(this.index));
+                    let linkNode = springLink.nodes[0] == this ? springLink.nodes[1] : springLink.nodes[0];
                     //console.log(tableID, this.position, linkNode.position);
 
                     let springForce = this.CalSpringForce(this, linkNode, springMassConfig.k, springLink.restLength);
@@ -119,8 +120,8 @@ export default class BabylonSpringNode {
         let restDir = restDiff.normalize();
         let restPos = linkNode.position.add( restDir.scaleInPlace(restLength) );
 
-        let springForce = mainNode.position.subtract(restPos);
-            springForce.scaleInPlace(-k);
+        let springForce = restPos.subtractInPlace(mainNode.position);
+            springForce.scaleInPlace(k);
 
         return springForce;
     }

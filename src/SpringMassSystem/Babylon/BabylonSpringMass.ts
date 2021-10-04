@@ -31,16 +31,17 @@ export default class BabylonSpringMass {
         let offsetArray : Array<number> = new Array(this._springNodeArray.length*3);
 
         let nodeLength = this._springNodeArray.length;
+
         let cacheVector = new Babylon.Vector3(0,0,0);
 
         for (let i = 0; i < nodeLength; i++) {
             if (i in trigLookupTable) {
                 let vertexIndex = trigLookupTable[i];
                 if (this._springNodeArray[i].isStatic) {
-                    cacheVector.copyFrom(this._springNodeArray[i].offset); 
+                    cacheVector =(this._springNodeArray[i].offset); 
                 } else {
                     this._springNodeArray[i].UpdateVelocity(config, this._subdivide+1, this._springLinkTable);
-                    cacheVector = cacheVector.copyFrom(this._springNodeArray[i].offset);   
+                    cacheVector = (this._springNodeArray[i].offset);   
                 }
 
                 let base = vertexIndex * 3;
@@ -57,7 +58,7 @@ export default class BabylonSpringMass {
         this._springLinkTable = {};
         let nodeLen = this._springNodeArray.length;
         let size = subdivide + 1;
-
+        //console.log(size);
         for (let i = 0; i < nodeLen; i++) {
             let gridX = i % (size);
             let gridY = Math.floor(i / (size));
@@ -71,6 +72,8 @@ export default class BabylonSpringMass {
             //Flexion Links
             this.SetSpringLinkToTable(this._springLinkTable, this.FindSpring(this._springNodeArray[i], i, gridX, gridY, size, this._springNodeArray,  [[2, 0], [0, 2]]));
         }
+
+        console.log(this._springLinkTable);
 
         return this._springLinkTable;
     }
@@ -90,6 +93,7 @@ export default class BabylonSpringMass {
                 let restLength = Babylon.Vector3.Distance(node.position, linkNode.position);
 
                 let linkType  : BabylonSpringLinkType= { id : GetSpringLinkTableID(index, arrayIndex), restLength : restLength, nodes : [node, linkNode] };
+                // console.log(linkType.id +", rest " + linkType.restLength);
                 links.push(linkType);
             }
         });
