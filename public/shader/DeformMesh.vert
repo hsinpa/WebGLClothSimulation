@@ -14,7 +14,7 @@ varying vec2 v_uv;
 void main () {
   v_uv = uv;
 
-  vec3 newLocalPos = position + (a_offset*0.01);
+  vec3 newLocalPos = position + (a_offset*0.02);
 
   gl_Position = worldViewProjection * vec4(newLocalPos, 1.0);
 }

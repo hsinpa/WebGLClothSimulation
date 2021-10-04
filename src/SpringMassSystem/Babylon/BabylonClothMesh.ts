@@ -20,7 +20,6 @@ export default class BabylonClothMesh {
         let vertex = this.meshData.GetVertex();
         this.mesh = this.meshData.GetMesh("cloth_mesh [Generate]", vertex);
 
-        this.springMass
         this.springMass.GenerateSpringLink(subdivide);
         this.config = this.GetDefaultSpringMassConfig();
     }
@@ -73,7 +72,7 @@ export default class BabylonClothMesh {
                     objectY = startY - (stepY * y), // Top down approach
                     index = x + (y * (subdivide+1));
 
-                let nodeType = ((y == 0 && x == 0) || (y ==0 && x == subdivide)) ? SpringNodeType.ControlPoint : SpringNodeType.FreePoint;
+                let nodeType = ((y == 0 && x == 0) || (y == 0 && x == subdivide)) ? SpringNodeType.ControlPoint : SpringNodeType.FreePoint;
                 
                 //Record node original position
                 this.springMass.PushNode(new BabylonSpringNode(new Babylon.Vector3(objectX, objectY, 0), index, x, y, nodeType));
@@ -101,7 +100,7 @@ export default class BabylonClothMesh {
         return {
             k : 7,
             mass : 5,
-            gravity : 10,
+            gravity : 100,
             timeStep : 0.02,
             damping : 30
         }

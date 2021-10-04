@@ -32,7 +32,7 @@ export default class BabylonSpringMass {
 
         let nodeLength = this._springNodeArray.length;
 
-        let cacheVector = new Babylon.Vector3(0,0,0);
+        let cacheVector : Babylon.Vector3;
 
         for (let i = 0; i < nodeLength; i++) {
             if (i in trigLookupTable) {
@@ -45,6 +45,8 @@ export default class BabylonSpringMass {
                 }
 
                 let base = vertexIndex * 3;
+
+                //console.log(base +", " + cacheVector);
                 offsetArray[base] = cacheVector.x;
                 offsetArray[base+1] = cacheVector.y;
                 offsetArray[base+2] = cacheVector.z;

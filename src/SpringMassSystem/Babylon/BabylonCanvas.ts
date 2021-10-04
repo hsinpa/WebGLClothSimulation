@@ -75,7 +75,7 @@ export default class BabylonCanvas {
 
         let clothMaterial = GetMaterial("deformMesh", scene);
         clothMaterial.wireframe = true;
-        this._cachePlane = new BabylonClothMesh(this._engine, new Babylon.Vector2(10, 10), 3);
+        this._cachePlane = new BabylonClothMesh(this._engine, new Babylon.Vector2(10, 10), 4);
         this._cachePlane.mesh.position = new Babylon.Vector3(0, 0, 1);
         //this._cachePlane.mesh.rotate(new Babylon.Vector3(0, 1, 0), Math.PI);
         this._cachePlane.mesh.material = clothMaterial;
@@ -94,6 +94,9 @@ export default class BabylonCanvas {
              this._previousScrY = this._scene.pointerY;
         });
 
+        let offset = this._cachePlane.Update();
+        this._cachePlane.mesh.setVerticesData("a_offset", offset, true, 3);
+
         window.addEventListener('resize', () => {
             this._engine.resize();
         });    
@@ -107,7 +110,7 @@ export default class BabylonCanvas {
         }
 
         if (this._selectedNode != null && state == ClickState.Down) {
-            this._selectedNode.UpdateLocalOffset(new Babylon.Vector3(this._deltaScrX, this._deltaScrY));
+            this._selectedNode.UpdateLocalOffset(new Babylon.Vector3(-this._deltaScrX, -this._deltaScrY));
 
             return;
         }
